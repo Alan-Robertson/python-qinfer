@@ -1,5 +1,8 @@
 from __future__ import division
+from __future__ import absolute_import
+
 from functools import partial
+from qinfer.perf_testing import perf_test_multiple
 import numpy as np
 
 
@@ -16,7 +19,7 @@ class HyperHeuristic():
 		self._heuristic = heuristic
 
 	def __call__(self, params):
-	    output = qinfer.perf_testing.perf_test_multiple(
+	    output = perf_test_multiple(
 	        self._n_trials, self._model, self._n_particles, self._prior, self._n_exp,
 	        self._hyper_heuristic(**{
 	            name: param
