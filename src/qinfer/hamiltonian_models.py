@@ -96,4 +96,4 @@ class JaynesCummingsModel(Model):
                )
         
         # Now we concatenate over outcomes.
-        return qi.Model.pr0_to_likelihood_array(outcomes, pr0)
+        return Model.pr0_to_likelihood_array(outcomes, pr0)
