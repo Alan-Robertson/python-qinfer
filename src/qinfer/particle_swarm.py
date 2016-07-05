@@ -41,8 +41,9 @@ class ParticleSwarmUpdater(object):
 			val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
 		
 		# Update the points in the swarm, this can be parralellised
-		for i in xrange(len(points)):
-			self._p_points[i], velocities[i], self._p_best[i], self._p_best_val[i] = self.pointupdate(points[i], velocities[i], self._p_best[i], self._g_best)
+		# for i in xrange(len(points)):
+		for idx, (point, velocity) in enumerate(zip(points, velocities)):
+			points[idx], velocities[idx], self._p_best[idx], self._p_best_val[idx] = self.pointupdate(point, velocity, self._p_best[idx], self._g_best)
 
 		val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
 		#val, g_best = min((self._p_best_val[i], self._p_best[i]) for i in xrange(len(self._p_best))) 
