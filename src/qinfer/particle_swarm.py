@@ -2,6 +2,12 @@ from __future__ import division
 import random
 import numpy as np
 
+from functools import partial
+
+def first(el):
+	return el[0]
+
+min_first = partial(min, key=first)
 
 class ParticleSwarmUpdater(object):
 	def __init__(self, fitness_function, omega_v=0.6, phi_p=0.3, phi_g=0.1):
@@ -27,17 +33,19 @@ class ParticleSwarmUpdater(object):
 
 		# Associate values with these points
 		if self._p_best_val == None:
-			self._p_best_val = [self._fitness_function(self._p_best[i]) for i in xrange(len(self._p_best))]
+			self._p_best_val = list(map(self._fitness_function, self._p_best))
+			#self._p_best_val = [self._fitness_function(point) for point in self._p_best]
 
 		# For no initial best point in swarm history
 		if self._g_best == None:
-			val, self._g_best = min((self._p_best_val[i], self._p_points[i]) for i in xrange(len(self._p_best)))
+			val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
 		
 		# Update the points in the swarm, this can be parralellised
 		for i in xrange(len(points)):
 			self._p_points[i], velocities[i], self._p_best[i], self._p_best_val[i] = pointupdate(points[i], velocities[i], self._p_best, self._g_best)
 
-		val, g_best = min((self._p_best_val[i], self._p_best[i]) for i in xrange(len(self._p_best))) 
+		val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
+		#val, g_best = min((self._p_best_val[i], self._p_best[i]) for i in xrange(len(self._p_best))) 
 
 		return points, velocities
 
@@ -57,10 +65,10 @@ class ParticleSwarmUpdater(object):
 
 		# Update the best in path and best in group points
 		P = (p_best, point)
-		G = (g_best, point)
 
 		# Find new p_best
-		p_val, p_best = min((self._fitness_function(P[idx]),P[idx]) for idx in xrange(len(P)))
+		p_val, p_best = min_first((self._fitness_function(point), point) for point in P)
+		# p_val, p_best = min_first((value, point) for value, point in zip(*P))
 
 		return point, velocity, p_best, p_val
 
