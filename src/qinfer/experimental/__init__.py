@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ##
-# __init__.py: Root of Qinfer package.
+# __init__.py: Package file for experimental features.
 ##
-# © 2012 Chris Ferrie (csferrie@gmail.com) and
+# © 2014 Chris Ferrie (csferrie@gmail.com) and
 #        Christopher E. Granade (cgranade@gmail.com)
 #     
 # This file is a part of the Qinfer project.
@@ -22,28 +22,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
+"""
+This package exposes experimental features which may change drastically
+at any point.
+"""
 
 from __future__ import absolute_import
-from qinfer.version import version as __version__
-
-## IMPORTS ####################################################################
-# These imports control what is made available by importing qinfer itself.
-
-from qinfer._exceptions import *
-
-from qinfer.gpu_models import *
-from qinfer.perf_testing import *
-from qinfer.expdesign import *
-from qinfer.test_models import *
-from qinfer.distributions import *
-from qinfer.abstract_model import *
-from qinfer.parallel import *
-from qinfer.score import *
-from qinfer.rb import *
-from qinfer.unstructured_models import *
-from qinfer.derived_models import *
-from qinfer.ipy import *
-from qinfer.simple_est import *
-
-import qinfer.tomography
-
+import warnings
+warnings.warn(
+	"The features in this package are experimental, "
+	"and may break at any time. Please use caution in "
+	"employing these features."
+)

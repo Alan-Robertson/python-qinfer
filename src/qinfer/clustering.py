@@ -56,13 +56,8 @@ try:
     import sklearn.metrics
     import sklearn.metrics.pairwise
 except ImportError:
-    try:
-        import logging
-        logging.getLogger(__name__)
-        logger.addHandler(logging.NullHandler())
-        logger.info("Could not import scikit-learn. Clustering support is disabled.")
-    except:
-        pass
+    warnings.warn("Could not import scikit-learn. Some features may not work.",
+        ImportWarning)
     sklearn = None
 
 ## CONSTANTS ##################################################################
