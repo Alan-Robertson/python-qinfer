@@ -226,7 +226,7 @@ class StenbergHeuristic(Heuristic):
     '''
     
     def __init__(self, updater, other_fields=None, a=1.57, b=0.518, c=3, M0=15):
-        super(Stenberg, self).__init__(updater)
+        super(StenbergHeuristic, self).__init__(updater)
         self._other_fields = other_fields if other_fields is not None else {}
         self.a = a
         self.b = b
