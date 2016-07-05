@@ -37,6 +37,7 @@ __all__ = [
     'EnsembleHeuristic',
     'ExpSparseHeuristic',
     'PGH',
+    'StenbergHeuristic',
     'OptimizationAlgorithms'
 ]
 

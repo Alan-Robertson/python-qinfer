@@ -18,7 +18,7 @@ from .abstract_model import Model
 class JaynesCummingsModel(Model):
 
     def __init__(self, min_freq=0, Q=np.array([1,0,0])):
-        super(JaynesCummings, self).__init__()
+        super(JaynesCummingsModel, self).__init__()
         self._min_freq = min_freq
         self._Q = Q
 
@@ -66,7 +66,7 @@ class JaynesCummingsModel(Model):
     def likelihood(self, outcomes, modelparams, expparams):
         # By calling the superclass implementation, we can consolidate
         # call counting there.
-        super(JaynesCummings, self).likelihood(
+        super(JaynesCummingsModel, self).likelihood(
             outcomes, modelparams, expparams
         )
         # Possibly add a second axis to modelparams.
