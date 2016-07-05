@@ -31,7 +31,7 @@ class ParticleSwarmUpdater(object):
 
 		# For no initial best point in swarm history
 		if self._g_best == None:
-			val, self._g_best = min((self._p_val[i], self._p_points[i]) for i in xrange(len(self._p_best)))
+			val, self._g_best = min((self._p_best_val[i], self._p_points[i]) for i in xrange(len(self._p_best)))
 		
 		# Update the points in the swarm, this can be parralellised
 		for i in xrange(len(points)):
