@@ -1,7 +1,18 @@
+
+#Features
 from __future__ import division
-from functools import partial
+from __future__ import absolute_import
+
+# Exports
+__all__ = [
+    'JaynesCummingsModel',
+]
+
+#Imports
 import random
 import numpy as np
+from functools import partial
+from .abstract_model import Model
 
 # Renamed in near future
 class JaynesCummingsModel(Model):

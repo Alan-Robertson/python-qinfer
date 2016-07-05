@@ -18,19 +18,19 @@ class ParticleSwarmUpdater(object):
 	def __call__(self, points, velocities):
 
 		# For no initial velocities
-		if velocities = None:
+		if velocities == None:
 			velocities = np.random.random_sample(points.shape)
 
 		# For no initial best points in particle history
-		if self._p_best = None:
+		if self._p_best == None:
 			self._p_best = points
 
 		# Associate values with these points
-		if self._p_best_val = None:
+		if self._p_best_val == None:
 			self._p_best_val = [self._fitness_function(p_best[i]) for i in xrange(len(self._p_best))]
 
 		# For no initial best point in swarm history
-		if self._g_best = None:
+		if self._g_best == None:
 			val, self._g_best = min((self._p_val[i], self._p_points[i]) for i in xrange(len(self._p_best)))
 		
 		# Update the points in the swarm, this can be parralellised
@@ -64,6 +64,6 @@ class ParticleSwarmUpdater(object):
 
 		return point, velocity, p_best, p_val
 
-	# Updating the fitness function; this should be replaced when a better method is decided upon
+	# Updating the fitness function
 	def fitnessupdate(self, fitness_function):
 		self._fitness_function = fitness_function
