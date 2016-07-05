@@ -27,7 +27,7 @@ class ParticleSwarmUpdater(object):
 
 		# Associate values with these points
 		if self._p_best_val == None:
-			self._p_best_val = [self._fitness_function(p_best[i]) for i in xrange(len(self._p_best))]
+			self._p_best_val = [self._fitness_function(self._p_best[i]) for i in xrange(len(self._p_best))]
 
 		# For no initial best point in swarm history
 		if self._g_best == None:
