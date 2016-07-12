@@ -18,42 +18,41 @@ class ParticleSwarmUpdater(object):
 		self._phi_g = phi_g
 		self._p_best = None;
 		self._p_best_val = None;
-		self._g_best = None;
+		self._g_best = None; #write a getter for this one
 
 	## METHODS ##
 	def __call__(self, points, velocities):
 
 		# For no initial velocities
-		if velocities == None:
+		if velocities is None:
 			velocities = np.random.random_sample(points.shape)
 
 		# For no initial best points in particle history
-		if self._p_best == None:
+		if self._p_best is None:
 			self._p_best = points
 
 		# Associate values with these points
-		if self._p_best_val == None:
+		if self._p_best_val is None:
 			self._p_best_val = list(map(self._fitness_function, self._p_best))
 			#self._p_best_val = [self._fitness_function(point) for point in self._p_best]
 
 		# For no initial best point in swarm history
-		if self._g_best == None:
+		if self._g_best is None:
 			val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
+
+		vals = np.empty(len(points))
 		
 		# Update the points in the swarm, this can be parralellised
 		# for i in xrange(len(points)):
 		for idx, (point, velocity) in enumerate(zip(points, velocities)):
-			points[idx], velocities[idx], self._p_best[idx], self._p_best_val[idx] = self.pointupdate(point, velocity, self._p_best[idx], self._g_best)
+			points[idx], velocities[idx], vals[idx], self._p_best[idx], self._p_best_val[idx] = self.pointupdate(point, velocity, self._p_best[idx], self._g_best)
 
 		val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
 		#val, g_best = min((self._p_best_val[i], self._p_best[i]) for i in xrange(len(self._p_best))) 
 
-		return points, velocities
+		return points, velocities, vals
 
-	# Function for vectorisation, caution with locks on g_best
-	# Remove i dependancy, pass p_best and return it, set on line 32
-	def pointupdate(self, point, velocity, p_best, g_best):
-		
+	def pointupdate(self, point, velocity, p_best, g_best):		
 		# Random values
 		r_p = np.random.random_sample(point.shape)
 		r_g = np.random.random_sample(point.shape)
@@ -65,13 +64,14 @@ class ParticleSwarmUpdater(object):
 		point = point + velocity
 
 		# Update the best in path and best in group points
-		P = (p_best, point)
+		P = (point, p_best)
+		vals = (self._fitness_function(point), self._fitness_function(p_best))
 
 		# Find new p_best
-		p_val, p_best = min_first((self._fitness_function(point), point) for point in P)
+		p_val, p_best = min_first((self._fitness_function(point), point) for point in zip(vals, P))
 		# p_val, p_best = min_first((value, point) for value, point in zip(*P))
 
-		return point, velocity, p_best, p_val
+		return point, velocity, vals[1], p_best, p_val
 
 	# Updating the fitness function
 	def fitnessupdate(self, fitness_function):
