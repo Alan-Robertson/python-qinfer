@@ -68,7 +68,7 @@ class ParticleSwarmUpdater(object):
 		vals = (self._fitness_function(point), self._fitness_function(p_best))
 
 		# Find new p_best
-		p_val, p_best = min_first((self._fitness_function(point), point) for point in zip(vals, P))
+		p_val, p_best = min_first(zip(vals, P))
 		# p_val, p_best = min_first((value, point) for value, point in zip(*P))
 
 		return point, velocity, vals[1], p_best, p_val
