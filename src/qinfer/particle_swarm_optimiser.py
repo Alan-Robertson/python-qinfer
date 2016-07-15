@@ -17,12 +17,11 @@ class particle_swarm_optimiser(object):
 	def __init__(
 			self, 
 			MODEL, PRIOR, 
-			HEURISTIC, HYPER_HEURISTIC, HYPER_PARAMS, 
+			HYPER_HEURISTIC, HYPER_PARAMS, 
 			FITNESS_FUNCTION=lambda performance: performance['loss'][:,-1].mean(axis=0)
 			):
 		self._MODEL = MODEL # Model class object
 		self._PRIOR = PRIOR # Prior class object
-		self._HEURISTIC = HEURISTIC # Heuristic Class object
 		self._HYPER_HEURISTIC = HYPER_HEURISTIC    
 		self._HYPER_PARAMS = HYPER_PARAMS # Parameter names of the parameters of the heuristic
 		self._FITNESS_FUNCTION = FITNESS_FUNCTION #Evaluates the fitness of a performance dataset
@@ -38,8 +37,8 @@ class particle_swarm_optimiser(object):
 		omega_v=0.6, phi_p=0.3, phi_g=0.1,
 		client=None):
 
-		self._point_history = numpy.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._HYPER_PARAMS)))
-		self._point_val = numpy.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 
+		self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._HYPER_PARAMS)))
+		self._point_val = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 
 
 		if client is None: # No parrallelisation
 			fitness = HyperHeuristic(
@@ -61,7 +60,7 @@ class particle_swarm_optimiser(object):
 						)
 
 		pso = ParticleSwarmUpdater(fitness, omega_v, phi_p, phi_g)
-		points = numpy.random.random((N_PSO_PARTICLES, len(self._HYPER_PARAMS))) * dist_scale + dist_mean
+		points = np.random.random((N_PSO_PARTICLES, len(self._HYPER_PARAMS))) * dist_scale + dist_mean
 		self._point_history[0] = points
 
 		points, velocities, vals = pso(points, None)
