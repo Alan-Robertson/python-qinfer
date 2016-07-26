@@ -128,7 +128,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		# Initialise the points, velocities and values
 		points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
 		velocities = np.zeros(points.shape)
-		vals = np.zeros(points.shape)
+		vals = np.zeros(N_PSO_PARTICLES)
 		self._point_history[0] = points
 
 		# Need to manually handle p_best and g_best as we swap the particles
