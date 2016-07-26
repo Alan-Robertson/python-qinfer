@@ -133,7 +133,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		# Need to manually handle p_best and g_best as we swap the particles
 		p_best = np.zeros(points.shape)
-		p_best_val = np.zeros(points.shape)
+		p_best_val = np.zeros(N_PSO_PARTICLES)
 		g_best = 0
 		g_best_val = 0
 		
