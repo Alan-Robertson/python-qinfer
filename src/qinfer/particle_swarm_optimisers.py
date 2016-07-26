@@ -143,7 +143,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		# The particle swarm iterations
 		for idx in xrange(N_PSO_ITERATIONS):
 			print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
-			g_best_val, g_best =  min(min(particle._p_best_val), particle._g_best for particle in pso)
+			g_best_val, g_best =  min((min(particle._p_best_val), particle._g_best) for particle in pso)
 
 			# Update the points
 			for p_idx, particle in enumerate(pso):
