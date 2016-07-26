@@ -26,7 +26,7 @@ class optimiser(object):
 
 #Interface for the Particle Swarm Updater
 class particle_swarm_optimiser(optimiser):
-	
+
 	def __call__(self, 
 		N_PSO_ITERATIONS=50,
 		N_PSO_PARTICLES=60,
@@ -138,7 +138,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		
 		# Initial run
 		for p_idx, particle in enumerate(pso):
-			points[temper_map[p_idx]] velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], None)
+			points[temper_map[p_idx]], velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], None)
 
 		# The particle swarm iterations
 		for idx in xrange(N_PSO_ITERATIONS):
@@ -148,7 +148,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 			# Update the points
 			for p_idx, particle in enumerate(pso):
 				particle._g_best = g_best #Update g_best of the swarm
-				points[temper_map[p_idx]] velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], velocities[temper_map[p_idx]])
+				points[temper_map[p_idx]], velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], velocities[temper_map[p_idx]])
 				points[temper_map[p_idx]] = self._BOUNDARY_CONDITIONS(points[temper_map[p_idx]])
 
 			# Save the point history
