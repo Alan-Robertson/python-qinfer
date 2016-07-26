@@ -22,12 +22,11 @@ class optimiser(object):
 			self._point_history = None # History of all points in the optimisation
 			self._val_history = None # Heuristic evaluation of the value of each point in the optimisation
 
-	def plot_points(x, y):
-		
+	#def plot_points(x, y):
 
 #Interface for the Particle Swarm Updater
 class particle_swarm_optimiser(optimiser):
-
+	
 	def __call__(self, 
 		N_PSO_ITERATIONS=50,
 		N_PSO_PARTICLES=60,
@@ -50,7 +49,7 @@ class particle_swarm_optimiser(optimiser):
 
 		# Iterate for each 
 		for idx in xrange(N_PSO_ITERATIONS):
-		    print '%d Percent Complete' %(100*idx//N_PSO_ITERATIONS)
+		    print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
 		    self._point_history[idx+1] = points
@@ -87,7 +86,7 @@ class particle_swarm_annealing_optimiser(optimiser):
 
 		for idx in xrange(N_PSO_ITERATIONS):
 
-		    print '%d Percent Complete' %(100*idx//N_PSO_ITERATIONS)
+		    print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
 		    self._point_history[idx+1] = points
@@ -143,7 +142,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		# The particle swarm iterations
 		for idx in xrange(N_PSO_ITERATIONS):
-			print '%d Percent Complete' %(100*idx//N_PSO_ITERATIONS)
+			print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 			g_best_val, g_best =  min(min(particle._p_best_val), particle._g_best for particle in pso)
 
 			# Update the points
