@@ -18,7 +18,7 @@ class ParticleSwarmUpdater(object):
 		self._phi_g = phi_g
 		self._p_best = None;
 		self._p_best_val = None;
-		self._g_best = None; #write a getter for this one
+		self._g_best = None;
 
 	## METHODS ##
 	def __call__(self, points, velocities):
@@ -34,7 +34,6 @@ class ParticleSwarmUpdater(object):
 		# Associate values with these points
 		if self._p_best_val is None:
 			self._p_best_val = list(map(self._fitness_function, self._p_best))
-			#self._p_best_val = [self._fitness_function(point) for point in self._p_best]
 
 		# For no initial best point in swarm history
 		if self._g_best is None:
