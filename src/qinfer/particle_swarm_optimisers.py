@@ -119,7 +119,8 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		# Generate an array of different swarms, each with different tempers
 		pso = [ParticleSwarmUpdater(self._FITNESS_FUNCTION, temper[0], temper[1], temper[2]) for temper in TEMPER_VALUES]
-		temper_list = np.random.shuffle(range(0,N_PSO_PARTICLES))
+		temper_list = range(0,N_PSO_PARTICLES)
+		np.random.shuffle(temper_list)
 		di = int(np.floor(N_PSO_PARTICLES//N_TEMPER_CATEGORIES))
 		temper_map = [temper_list[i:i+di] for i in range(0,N_PSO_PARTICLES, di)]
 		N_TEMPER_CATEGORIES = len(temper_map)
@@ -164,7 +165,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 					p_best_val[temper_map[p_idx]] = particle._p_best_val
 
 				# Shuffle the list and reconstruct the map
-				temper_list = np.random.shuffle(temper_list)
+				np.random.shuffle(temper_list)
 				temper_map = [temper_list[i:i+di] for i in range(0,N_PSO_PARTICLES, di)]
 
 				# Set p_best and p_best_val for the new swarms
