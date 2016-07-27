@@ -29,7 +29,7 @@ class optimiser(object):
 		plt.scatter(point_filter[0], point_filter[1], c=point_vals, s=size, cmap=cmap)
 
 
-	def plot_path(x=0, y=1, p=[0], size=15, cmap='hot'):
+	def plot_path(x=0, y=1, p_plot=[0], size=15, cmap='hot'):
 		for p in p_plot:
 			point_filter = swarm._point_history[:,p,[x,y]][:-1,:]
 			point_vals = swarm._val_history[:-1,p]
