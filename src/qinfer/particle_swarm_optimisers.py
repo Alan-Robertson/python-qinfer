@@ -31,11 +31,11 @@ class optimiser(object):
 
 	def plot_path(x=0, y=1, p=[0], size=15, cmap='hot'):
 		for p in p_plot:
-    		point_filter = swarm._point_history[:,p,[x,y]][:-1,:]
-    		point_vals = swarm._val_history[:-1,p]
+			point_filter = swarm._point_history[:,p,[x,y]][:-1,:]
+			point_vals = swarm._val_history[:-1,p]
 
-    		plt.plot(point_filter[:,0], point_filter[:,1])
-    		plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
+			plt.plot(point_filter[:,0], point_filter[:,1])
+			plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
 
 #Interface for the Particle Swarm Updater
 class particle_swarm_optimiser(optimiser):
