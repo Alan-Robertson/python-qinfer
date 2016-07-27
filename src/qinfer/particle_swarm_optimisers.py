@@ -70,7 +70,7 @@ class particle_swarm_optimiser(optimiser):
 			print("Beginning Iterations...")
 		for idx in xrange(N_PSO_ITERATIONS):
 			if verbose:
-		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
@@ -112,7 +112,7 @@ class particle_swarm_annealing_optimiser(optimiser):
 
 		for idx in xrange(N_PSO_ITERATIONS):
 			if verbose:
-		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
 		    self._point_history[idx+1] = points
@@ -171,7 +171,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		# The particle swarm iterations
 		for idx in xrange(N_PSO_ITERATIONS):
 			if verbose:
-		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 			g_best_val, g_best = min_first((min(particle._p_best_val), particle._g_best) for particle in pso)
 
 			# Update the points
