@@ -72,10 +72,10 @@ class particle_swarm_optimiser(optimiser):
 			if verbose:
 				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 
-		    points, velocities, vals = pso(points, velocities)
-		    points = self._BOUNDARY_CONDITIONS(points)
-		    self._point_history[idx+1] = points
-		    self._val_history[idx+1] = vals
+			points, velocities, vals = pso(points, velocities)
+			points = self._BOUNDARY_CONDITIONS(points)
+			self._point_history[idx+1] = points
+			self._val_history[idx+1] = vals
 	    
 		if verbose:
 		    	print '100 Percent Complete'
@@ -113,14 +113,14 @@ class particle_swarm_annealing_optimiser(optimiser):
 		for idx in xrange(N_PSO_ITERATIONS):
 			if verbose:
 				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
-		    points, velocities, vals = pso(points, velocities)
-		    points = self._BOUNDARY_CONDITIONS(points)
-		    self._point_history[idx+1] = points
-		    self._val_history[idx+1] = vals
+			points, velocities, vals = pso(points, velocities)
+			points = self._BOUNDARY_CONDITIONS(points)
+			self._point_history[idx+1] = points
+			self._val_history[idx+1] = vals
 
-		    pso._omega_v *= ASYM_COOLING_RATE[0]
-	    	pso._phi_p *= ASYM_COOLING_RATE[1]
-	    	pso._phi_g *= ASYM_COOLING_RATE[2]
+			pso._omega_v *= ASYM_COOLING_RATE[0]
+			pso._phi_p *= ASYM_COOLING_RATE[1]
+			pso._phi_g *= ASYM_COOLING_RATE[2]
 
 
 		return pso._g_best, min(pso._p_best_val)
@@ -172,6 +172,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		for idx in xrange(N_PSO_ITERATIONS):
 			if verbose:
 				print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+
 			g_best_val, g_best = min_first((min(particle._p_best_val), particle._g_best) for particle in pso)
 
 			# Update the points
