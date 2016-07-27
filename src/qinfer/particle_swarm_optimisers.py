@@ -6,7 +6,7 @@ import ipyparallel as ipp
 import matplotlib.pyplot as plt
 
 from functools import partial
-from .particle_swarm import ParticleSwarmUpdater
+from .particle_swarm import ParticleSwarmUpdater, min_first
 
 
 class optimiser(object):
