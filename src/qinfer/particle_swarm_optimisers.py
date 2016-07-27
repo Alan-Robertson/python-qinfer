@@ -22,14 +22,14 @@ class optimiser(object):
 			self._point_history = None # History of all points in the optimisation
 			self._val_history = None # Heuristic evaluation of the value of each point in the optimisation
 
-	def plot_freq_dist(x=0, y=1, size=15, cmap='hot'):
+	def plot_freq_dist(self, x=0, y=1, size=15, cmap='hot'):
 		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
 		point_filter = np.concatenate([self._point_history[i,:,[x,y]] for i in range(N_PSO_ITERATIONS)], axis=1)
 		point_vals = np.concatenate([self._val_history[i] for i in range(N_PSO_ITERATIONS)], axis=0)
 		plt.scatter(point_filter[0], point_filter[1], c=point_vals, s=size, cmap=cmap)
 
 
-	def plot_path(x=0, y=1, p_plot=[0], size=15, cmap='hot'):
+	def plot_path(self, x=0, y=1, p_plot=[0], size=15, cmap='hot'):
 		for p in p_plot:
 			point_filter = self._point_history[:,p,[x,y]][:-1,:]
 			point_vals = self._val_history[:-1,p]
@@ -45,13 +45,18 @@ class particle_swarm_optimiser(optimiser):
 		N_PSO_PARTICLES=60,
 		dist_mean=0, dist_scale=1,
 		omega_v=0.2, phi_p=0.4, phi_g=0.4,
+		verbose=False,
 		client=None):
 
 		# Initialise the point history and the value history
+		if verbose:
+			print("Initialising History...")
 		self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._PARAMS)))
 		self._val_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 
 
 		# Initialise the swarm and the points
+		if verbose:
+			print("Initialising Points and Velocities...")
 		pso = ParticleSwarmUpdater(self._FITNESS_FUNCTION, omega_v, phi_p, phi_g)
 		points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
 
@@ -61,13 +66,20 @@ class particle_swarm_optimiser(optimiser):
 		self._val_history[0] = vals
 
 		# Iterate for each 
+		if verbose:
+			print("Beginning Iterations...")
 		for idx in xrange(N_PSO_ITERATIONS):
-		    print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+			if verbose:
+		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
 		    self._point_history[idx+1] = points
 		    self._val_history[idx+1] = vals
 	    
+		if verbose:
+		    	print '100 Percent Complete'
+
 		return pso._g_best, min(pso._p_best_val)
 
 class particle_swarm_annealing_optimiser(optimiser):
@@ -83,6 +95,7 @@ class particle_swarm_annealing_optimiser(optimiser):
 		ASYM_COOLING_RATE = None,
 		dist_mean=0, dist_scale=1,
 		omega_v=0.2, phi_p=0.4, phi_g=0.4,
+		verbose=False,
 		client=None):
 
 		if (ASYM_COOLING_RATE is None):
@@ -98,8 +111,8 @@ class particle_swarm_annealing_optimiser(optimiser):
 		points, velocities, vals = pso(points, None)
 
 		for idx in xrange(N_PSO_ITERATIONS):
-
-		    print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+			if verbose:
+		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 		    points, velocities, vals = pso(points, velocities)
 		    points = self._BOUNDARY_CONDITIONS(points)
 		    self._point_history[idx+1] = points
@@ -122,6 +135,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		TEMPER_FREQUENCY=10,
 		TEMPER_VALUES=None,
 		dist_mean=0, dist_scale=1,
+		verbose=False,
 		client=None):
 
 		if (TEMPER_VALUES is None):
@@ -156,7 +170,8 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		# The particle swarm iterations
 		for idx in xrange(N_PSO_ITERATIONS):
-			print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+			if verbose:
+		    	print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
 			g_best_val, g_best = min_first((min(particle._p_best_val), particle._g_best) for particle in pso)
 
 			# Update the points
