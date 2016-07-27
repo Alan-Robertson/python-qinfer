@@ -22,7 +22,20 @@ class optimiser(object):
 			self._point_history = None # History of all points in the optimisation
 			self._val_history = None # Heuristic evaluation of the value of each point in the optimisation
 
-	#def plot_points(x, y):
+	def plot_freq_dist(x=0, y=1, size=15, cmap='hot'):
+		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
+		point_filter = np.concatenate([self._point_history[i,:,[x,y]] for i in range(N_PSO_ITERATIONS)], axis=1)
+		point_vals = np.concatenate([self._val_history[i] for i in range(N_PSO_ITERATIONS)], axis=0)
+		plt.scatter(point_filter[0], point_filter[1], c=point_vals, s=size, cmap=cmap)
+
+
+	def plot_path(x=0, y=1, p=[0], size=15, cmap='hot'):
+		for p in p_plot:
+    		point_filter = swarm._point_history[:,p,[x,y]][:-1,:]
+    		point_vals = swarm._val_history[:-1,p]
+
+    		plt.plot(point_filter[:,0], point_filter[:,1])
+    		plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
 
 #Interface for the Particle Swarm Updater
 class particle_swarm_optimiser(optimiser):
