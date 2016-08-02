@@ -140,6 +140,8 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		if (TEMPER_VALUES is None):
 			TEMPER_VALUES = np.random.random((N_TEMPER_CATEGORIES, 3))
+		else:
+			N_TEMPER_CATEGORIES=TEMPER_VALUES.len
 
 		self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._PARAMS)))
 		self._val_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 

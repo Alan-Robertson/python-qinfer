@@ -25,7 +25,7 @@ class ParticleSwarmUpdater(object):
 
 		# For no initial velocities
 		if velocities is None:
-			velocities = np.random.random_sample(points.shape)
+			velocities = 2 * np.random.random_sample(points.shape) - 1
 
 		# For no initial best points in particle history
 		if self._p_best is None:
@@ -68,7 +68,6 @@ class ParticleSwarmUpdater(object):
 
 		# Find new p_best
 		p_val, p_best = min_first(zip(vals, P))
-		# p_val, p_best = min_first((value, point) for value, point in zip(*P))
 
 		return point, velocity, vals[1], p_best, p_val
 
