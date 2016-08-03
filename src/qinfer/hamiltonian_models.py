@@ -102,7 +102,7 @@ class JaynesCummingsModel(Model):
 
         # Renamed in near future
 class PettaModel(Model):
-    def __init__(self, min_freq=0, Q=np.array([1,0,0])):
+    def __init__(self, min_freq=0, Q=np.array([1])):
         super(PettaModel, self).__init__()
         self._min_freq = min_freq
         self._Q = Q
