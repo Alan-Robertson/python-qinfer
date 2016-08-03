@@ -159,7 +159,7 @@ class PettaModel(Model):
             modelparams = modelparams[..., np.newaxis]
         
         # Each of these has shape (n_models, 1)
-        mode_freq, coupling_strength, relaxation_time = (modelparams.T)[:, :, np.newaxis]
+        detuning = (modelparams.T)[:, :, np.newaxis]
         
         # Allocating first serves to make sure that a shape mismatch later
         # will cause an error.
