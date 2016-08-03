@@ -165,7 +165,7 @@ class PettaModel(Model):
         # will cause an error.
         pr0 = np.zeros((modelparams.shape[0], expparams.shape[0]))
         
-        pr0[:, :] = ((3 - np.cos(detuning * expparams['exchangetime)'])/4))
+        pr0[:, :] = ((3 - np.cos(detuning * expparams['exchangetime'])/4))
         
         # Now we concatenate over outcomes.
         return Model.pr0_to_likelihood_array(outcomes, pr0)
