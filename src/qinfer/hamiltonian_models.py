@@ -160,12 +160,13 @@ class PettaModel(Model):
         
         # Each of these has shape (n_models, 1)
         detuning = (modelparams.T)[:, :, np.newaxis]
+        exchangetime = (expparams.T)[:, :, np.newaxis]
         
         # Allocating first serves to make sure that a shape mismatch later
         # will cause an error.
         pr0 = np.zeros((modelparams.shape[0], expparams.shape[0]))
         
-        pr0[:, :] = ((3 - np.cos(modelparams['detuning'] * expparams['exchangetime']))/4)
+        pr0[:, :] = ((3 - np.cos(detuning * exchangetime))/4)
         
         # Now we concatenate over outcomes.
         return Model.pr0_to_likelihood_array(outcomes, pr0)
