@@ -160,7 +160,7 @@ class PettaModel(Model):
         
         # Each of these has shape (n_models, 1)
         detuning = (modelparams.T)[:, :, np.newaxis]
-        exchangetime = expparams
+        exchangetime = expparams[0]
         
         # Allocating first serves to make sure that a shape mismatch later
         # will cause an error.
