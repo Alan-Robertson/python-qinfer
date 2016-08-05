@@ -39,7 +39,7 @@ class optimiser(object):
 
 	def plot_opt_history(self):
 		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
-		history = zeros(N_PSO_ITERATIONS)
+		history = np.zeros(N_PSO_ITERATIONS)
 
 		c_best = min_first(self._val_history[0,:])
 		history[0] = c_best
