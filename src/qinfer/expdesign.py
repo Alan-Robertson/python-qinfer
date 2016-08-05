@@ -265,86 +265,84 @@ class StenbergHeuristic(Heuristic):
         return eps
 
 
-    class SPSAHeuristic(Heuristic):
+class SPSAHeuristic(Heuristic):
+    '''
+    Implements SPSA as a heuristic
+    '''
 
-            '''
-            Implements SPSA as a heuristic
-
-            '''
-
-        def __init__(self, updater, other_fields, A=0, a=3, b=0.1, t=1/6, s=1):
-            super(SPSAHeuristic, self).__init__(updater)
-            self._other_fields = other_fields if other_fields is not None else {}
-            self.A = A
-            self.a = a
-            self.b = b
-            self.t = t
-            self.s = s
-            self._experiment_fitness = other_fields['experiment_fitness']
+    def __init__(self, updater, other_fields, A=0, a=3, b=0.1, t=1/6, s=1):
+        super(SPSAHeuristic, self).__init__(updater)
+        self._other_fields = other_fields if other_fields is not None else {}
+        self.A = A
+        self.a = a
+        self.b = b
+        self.t = t
+        self.s = s
+        self._experiment_fitness = other_fields['experiment_fitness']
 
 
-        def __call__(self):
+    def __call__(self):
 
-            #expparams = self._updater.data_record[-1], check whether this will extract the required parameters
-            # need to fix this dtype for assignment etc
+        #expparams = self._updater.data_record[-1], check whether this will extract the required parameters
+        # need to fix this dtype for assignment etc
 
-            true_mps = self._updater.prior.sample()
-            # Fix expparams, line 401 of smc.py
-            expparams =  1
+        true_mps = self._updater.prior.sample()
+        # Fix expparams, line 401 of smc.py
+        expparams =  1
 
-            # Parameters of the 
-            delta = np.random.random(expparams.shape) * 2 - 1
-            alpha = self.a/(1 + self.k + self.A)**self.s
-            beta = self.b/(1 + self.k)**self.t
+        # Parameters of the 
+        delta = np.random.random(expparams.shape) * 2 - 1
+        alpha = self.a/(1 + self.k + self.A)**self.s
+        beta = self.b/(1 + self.k)**self.t
 
-            #SPSA f(x + alpha * delta)
-            u_expparams = {}
-            for i, (key, val) in enumerate(expparams.items()):
-                u_expparams[key] = val + alpha * delta[i]
+        #SPSA f(x + alpha * delta)
+        u_expparams = {}
+        for i, (key, val) in enumerate(expparams.items()):
+            u_expparams[key] = val + alpha * delta[i]
 
-            u_datum = self._updater.model.simulate_experiment(true_mps, expparams + alpha * delta)
+        u_datum = self._updater.model.simulate_experiment(true_mps, expparams + alpha * delta)
 
-            self._updater.update(u_datum, expparams + alpha * delta)
+        self._updater.update(u_datum, expparams + alpha * delta)
 
-            # Performance data
-            u_est_mean = self._updater.est_mean()
-            u_delta = u_est_mean - true_mps
-            u_loss = np.dot(u_delta**2, self.updater.model.Q)
+        # Performance data
+        u_est_mean = self._updater.est_mean()
+        u_delta = u_est_mean - true_mps
+        u_loss = np.dot(u_delta**2, self.updater.model.Q)
 
-            u_performance[0]['true'] = true_mps
-            u_performance[0]['loss'] = u_loss
-            u_performance[0]['resample_count'] = updater.resample_count
-            u_performance[0]['outcome'] = u_datum
-            u_performance[0]['est'] = u_est_mean
+        u_performance[0]['true'] = true_mps
+        u_performance[0]['loss'] = u_loss
+        u_performance[0]['resample_count'] = updater.resample_count
+        u_performance[0]['outcome'] = u_datum
+        u_performance[0]['est'] = u_est_mean
 
-            # SPSA f(x - alpha * delta)
-            d_expparams = {}
-            for i, (key, val) in enumerate(expparams.items()):
-                d_expparams[key] = val - alpha * delta[i]
+        # SPSA f(x - alpha * delta)
+        d_expparams = {}
+        for i, (key, val) in enumerate(expparams.items()):
+            d_expparams[key] = val - alpha * delta[i]
 
-            d_datum = self._updater.model.simulate_experiment(true_mps, d_expparams)
+        d_datum = self._updater.model.simulate_experiment(true_mps, d_expparams)
 
-            self._updater.update(u_datum, expparams - alpha * delta)
+        self._updater.update(u_datum, expparams - alpha * delta)
 
-            # Performance data
-            d_est_mean = d_updater.est_mean()
-            d_delta = d_est_mean - true_mps
-            d_loss = np.dot(d_delta**2, self._model.Q)
+        # Performance data
+        d_est_mean = d_updater.est_mean()
+        d_delta = d_est_mean - true_mps
+        d_loss = np.dot(d_delta**2, self._model.Q)
 
-            d_performance[0]['true'] = true_mps
-            d_performance[0]['loss'] = d_loss
-            d_performance[0]['resample_count'] = updater.resample_count
-            d_performance[0]['outcome'] = d_datum
-            d_performance[0]['est'] = d_est_mean
+        d_performance[0]['true'] = true_mps
+        d_performance[0]['loss'] = d_loss
+        d_performance[0]['resample_count'] = updater.resample_count
+        d_performance[0]['outcome'] = d_datum
+        d_performance[0]['est'] = d_est_mean
 
-            # Calculate g
-            g = (self._experiment_fitness(u_performance) + self._experiment_fitness(d_performance)) * delta / (2 * alpha)
+        # Calculate g
+        g = (self._experiment_fitness(u_performance) + self._experiment_fitness(d_performance)) * delta / (2 * alpha)
 
-            # SPSA x' = x + g * beta
-            for i, (key, val) in enumerate(expparams.items()):
-                expparams[key] = val + g[i] * beta
+        # SPSA x' = x + g * beta
+        for i, (key, val) in enumerate(expparams.items()):
+            expparams[key] = val + g[i] * beta
 
-            return expparams
+        return expparams
 
 class ExperimentDesigner(object):
     """
