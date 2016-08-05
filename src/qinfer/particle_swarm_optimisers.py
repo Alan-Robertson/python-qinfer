@@ -41,12 +41,13 @@ class optimiser(object):
 		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
 		history = np.zeros(N_PSO_ITERATIONS)
 
-		c_best = min_first(self._val_history[0,:])
+		c_best = min(self._val_history[0,:])
 		history[0] = c_best
 
 		for i in range(N_PSO_ITERATIONS):
-			history[i] = min(c_best, min_first(self._val_history[i,:]))
-		
+		    history[i] = min(c_best, min(self._val_history[i,:]))
+		    c_best = history[i]
+
 		plt.plot(history)
 
 
