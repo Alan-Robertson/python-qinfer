@@ -37,6 +37,19 @@ class optimiser(object):
 			plt.plot(point_filter[:,0], point_filter[:,1])
 			plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
 
+	def plot_opt_history(self):
+		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
+		history = zeros(N_PSO_ITERATIONS)
+
+		c_best = min_first(self._val_history[0,:])
+		history[0] = c_best
+
+		for i in range(N_PSO_ITERATIONS):
+			history[i] = min(c_best, min_first(self._val_history[i,:]))
+		
+		plt.plot(history)
+
+
 #Interface for the Particle Swarm Updater
 class particle_swarm_optimiser(optimiser):
 
