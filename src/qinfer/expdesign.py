@@ -272,7 +272,7 @@ class StenbergHeuristic(Heuristic):
 
             '''
 
-        def_init(self, updater, other_fields, A=0, a=3, b=0.1, t=1/6, s=1):
+        def __init__(self, updater, other_fields, A=0, a=3, b=0.1, t=1/6, s=1):
             super(SPSAHeuristic, self).__init__(updater)
             self._other_fields = other_fields if other_fields is not None else {}
             self.A = A
@@ -316,7 +316,6 @@ class StenbergHeuristic(Heuristic):
             u_performance[0]['resample_count'] = updater.resample_count
             u_performance[0]['outcome'] = u_datum
             u_performance[0]['est'] = u_est_mean
-
 
             # SPSA f(x - alpha * delta)
             d_expparams = {}
