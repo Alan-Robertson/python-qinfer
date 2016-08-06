@@ -287,18 +287,13 @@ class SPSAHeuristic(Heuristic):
 
     def __call__(self):
 
-        #expparams = self._updater.data_record[-1], check whether this will extract the required parameters
-        # need to fix this dtype for assignment etc
-
-        true_mps = self._updater.prior.sample()
+        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
 
         # If we have no current data, initialise using the initial position function passes as an additional argument to the updater
         if len(self._updater._experiment_record) == 0:
             self._updater.model.expparams_dtype
             fields = [field for (field, _) in self._updater.model.expparams_dtype]
             values = self._initial_position(len(fields))
-
-            eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
 
             for field, value in zip(fields, values):
                 eps[field] = value
@@ -307,7 +302,9 @@ class SPSAHeuristic(Heuristic):
 
         # If this is not the first iteration we can start the SPSA
         expparams = self._updater._experiment_record[-1]
-        k = len(self._updater.data_record)
+        values = expparams[0]
+        fields = [field for (field, _) in self._updater.model.expparams_dtype]
+        true_mps = self._updater.prior.sample()
 
         # Parameters of the SPSA algorithm
         delta = np.random.random(expparams.shape) * 2 - 1
@@ -316,9 +313,9 @@ class SPSAHeuristic(Heuristic):
         self.k += 1
 
         #SPSA f(x + alpha * delta)
-        u_expparams = {}
-        for i, (key, val) in enumerate(expparams.items()):
-            u_expparams[key] = val + alpha * delta[i]
+        u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+        for i, (field, value) in enumerate(zip(fields, values)):
+            u_expparams[field] = value + alpha * delta[i]
 
         u_datum = self._updater.model.simulate_experiment(true_mps, expparams + alpha * delta)
 
@@ -336,9 +333,9 @@ class SPSAHeuristic(Heuristic):
         u_performance[0]['est'] = u_est_mean
 
         # SPSA f(x - alpha * delta)
-        d_expparams = {}
-        for i, (key, val) in enumerate(expparams.items()):
-            d_expparams[key] = val - alpha * delta[i]
+        d_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+        for i, (field, value) in enumerate(zip(fields, values)):
+            d_expparams[field] = value - alpha * delta[i]
 
         d_datum = self._updater.model.simulate_experiment(true_mps, d_expparams)
 
