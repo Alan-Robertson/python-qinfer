@@ -279,7 +279,9 @@ class SPSAHeuristic(Heuristic):
         self.t = t
         self.s = s
         self._experiment_fitness = updater._heuristic_params['experiment_fitness']
-        self._initial_position = updater._heuristic_params['initial_position'] if updater._heuristic_params['initial_position'] is not None else lambda n: np.random.random(n)
+        self._initial_position = lambda n: np.random.random(n)
+        # TO DO: Allow a more flexibile initial position function to be passed to the heuristic
+        # self._initial_position = updater._heuristic_params['initial_position'] if updater._heuristic_params['initial_position'] is not None else lambda n: np.random.random(n)
 
 
     def __call__(self):
