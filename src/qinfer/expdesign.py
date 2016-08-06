@@ -279,6 +279,8 @@ class SPSAHeuristic(Heuristic):
         self.t = t
         self.s = s
         self._experiment_fitness = updater._heuristic_params['experiment_fitness']
+        self._initial_position = updater._heuristic_params['initial_position'] if updater._heuristic_params['initial_position'] is not None else lambda n: np.random.random(n)
+
 
     def __call__(self):
 
@@ -287,11 +289,20 @@ class SPSAHeuristic(Heuristic):
 
         true_mps = self._updater.prior.sample()
 
-        # If we have no current data, initialise as a PGH
+        # If we have no current data, initialise using the initial position function passes as an additional argument to the updater
         if len(self._updater._experiment_record) == 0:
-            initial_position_heuristic = PGH(self._updater)
-            return initial_position_heuristic()
+            self._updater.model.expparams_dtype
+            fields = [field for field in [MODEL.expparams_dtype][0][0]]
+            values = self._initial_position(len(fields))
 
+            eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+
+            for field, value in zip(fields, values):
+                eps[field] = value
+
+            return eps
+
+        # If this is not the first iteration we can start the SPSA
         expparams = self._updater._experiment_record[-1]
 
         # Parameters of the 
