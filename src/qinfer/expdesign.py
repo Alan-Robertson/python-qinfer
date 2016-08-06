@@ -307,7 +307,7 @@ class SPSAHeuristic(Heuristic):
         true_mps = self._updater.prior.sample()
 
         # Parameters of the SPSA algorithm
-        delta = (np.random.random(len(expparams[0]) - 1) * 2
+        delta = (np.random.random(len(expparams[0]) - 1)) * 2
         alpha = self.a/(1 + self.k + self.A)**self.s
         beta = self.b/(1 + self.k)**self.t
         self.k += 1
