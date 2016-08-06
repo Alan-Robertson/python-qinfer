@@ -317,7 +317,7 @@ class SPSAHeuristic(Heuristic):
         for i, (field, value) in enumerate(zip(fields, values)):
             u_expparams[field] = value + alpha * delta[i]
 
-        u_datum = self._updater.model.simulate_experiment(true_mps, expparams + alpha * delta)
+        u_datum = self._updater.model.simulate_experiment(true_mps, u_expparams)
 
         self._updater.update(u_datum, expparams + alpha * delta)
 
