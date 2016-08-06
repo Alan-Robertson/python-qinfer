@@ -280,14 +280,19 @@ class SPSAHeuristic(Heuristic):
         self.s = s
         self._experiment_fitness = updater._heuristic_params['experiment_fitness']
 
-
     def __call__(self):
 
         #expparams = self._updater.data_record[-1], check whether this will extract the required parameters
         # need to fix this dtype for assignment etc
 
         true_mps = self._updater.prior.sample()
-        expparams =  self._updater._experiment_record[-1]
+
+        # If we have no current data, initialise as a PGH
+        if len(self._updater._experiment_record) == 0:
+            initial_position_heuristic = PGH(self._updater)
+            return initial_position_heuristic()
+
+        expparams = self._updater._experiment_record[-1]
 
         # Parameters of the 
         delta = np.random.random(expparams.shape) * 2 - 1
