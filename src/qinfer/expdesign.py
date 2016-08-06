@@ -324,7 +324,7 @@ class SPSAHeuristic(Heuristic):
         # Performance data
         u_est_mean = self._updater.est_mean()
         u_delta = u_est_mean - true_mps
-        u_loss = np.dot(u_delta**2, self.updater.model.Q)
+        u_loss = np.dot(u_delta**2, self._updater.model.Q)
 
         u_performance[0]['true'] = true_mps
         u_performance[0]['loss'] = u_loss
@@ -344,7 +344,7 @@ class SPSAHeuristic(Heuristic):
         # Performance data
         d_est_mean = d_updater.est_mean()
         d_delta = d_est_mean - true_mps
-        d_loss = np.dot(d_delta**2, self._model.Q)
+        d_loss = np.dot(d_delta**2, self._updater.model.Q)
 
         d_performance[0]['true'] = true_mps
         d_performance[0]['loss'] = d_loss
