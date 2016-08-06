@@ -313,8 +313,8 @@ class SPSAHeuristic(Heuristic):
         self.k += 1
 
         # Stores performance data
-        u_performance = np.zeros((n_exp,), dtype=dtype)
-        d_performance = np.zeros((n_exp,), dtype=dtype)
+        u_performance = np.zeros((1,), dtype=dtype)
+        d_performance = np.zeros((1,), dtype=dtype)
 
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
