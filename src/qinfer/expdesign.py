@@ -287,8 +287,7 @@ class SPSAHeuristic(Heuristic):
         # need to fix this dtype for assignment etc
 
         true_mps = self._updater.prior.sample()
-        # Fix expparams, line 401 of smc.py
-        expparams =  1
+        expparams =  self._updater._experiment_record[-1]
 
         # Parameters of the 
         delta = np.random.random(expparams.shape) * 2 - 1

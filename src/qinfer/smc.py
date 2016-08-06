@@ -155,6 +155,7 @@ class SMCUpdater(Distribution):
         # Initialize properties to hold information about the history.
         self._just_resampled = False
         self._data_record = []
+        self._experiment_record = []
         self._normalization_record = []
         self._resampling_divergences = [] if track_resampling_divergence else None
         
@@ -242,6 +243,15 @@ class SMCUpdater(Distribution):
         # We use [:] to force a new list to be made, decoupling
         # this property from the caller.
         return self._data_record[:]
+
+    @property
+    def experiment_record(self):
+        """
+        List of experiments given to :meth:`~SMCUpdater.update`.
+        """
+        # We use [:] to force a new list to be made, decoupling
+        # this property from the caller.
+        return self._experiment_record[:]
         
     @property
     def resampling_divergences(self):
@@ -400,6 +410,7 @@ class SMCUpdater(Distribution):
         # First, record the outcome.
         # TODO: record the experiment as well.
         self._data_record.append(outcome)
+        self._experiment_record.append(expparams)
         self._just_resampled = False
 
         # Perform the update. 
