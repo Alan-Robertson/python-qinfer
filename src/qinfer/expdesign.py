@@ -319,7 +319,7 @@ class SPSAHeuristic(Heuristic):
 
         u_datum = self._updater.model.simulate_experiment(true_mps, u_expparams)
 
-        self._updater.update(u_datum, expparams + alpha * delta)
+        self._updater.update(u_datum, u_expparams)
 
         # Performance data
         u_est_mean = self._updater.est_mean()
@@ -339,7 +339,7 @@ class SPSAHeuristic(Heuristic):
 
         d_datum = self._updater.model.simulate_experiment(true_mps, d_expparams)
 
-        self._updater.update(u_datum, expparams - alpha * delta)
+        self._updater.update(d_datum, d_expparams)
 
         # Performance data
         d_est_mean = d_updater.est_mean()
