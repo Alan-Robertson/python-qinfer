@@ -278,6 +278,7 @@ class SPSAHeuristic(Heuristic):
         self.b = b
         self.t = t
         self.s = s
+        self.k = 0
         self._experiment_fitness = updater._heuristic_params['experiment_fitness']
         self._initial_position = lambda n: np.random.random(n)
         # TO DO: Allow a more flexibile initial position function to be passed to the heuristic
@@ -306,11 +307,13 @@ class SPSAHeuristic(Heuristic):
 
         # If this is not the first iteration we can start the SPSA
         expparams = self._updater._experiment_record[-1]
+        k = len(self._updater.data_record)
 
-        # Parameters of the 
+        # Parameters of the SPSA algorithm
         delta = np.random.random(expparams.shape) * 2 - 1
         alpha = self.a/(1 + self.k + self.A)**self.s
         beta = self.b/(1 + self.k)**self.t
+        self.k += 1
 
         #SPSA f(x + alpha * delta)
         u_expparams = {}
