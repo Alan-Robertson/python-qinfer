@@ -312,6 +312,10 @@ class SPSAHeuristic(Heuristic):
         beta = self.b/(1 + self.k)**self.t
         self.k += 1
 
+        # Stores performance data
+        u_performance = np.zeros((n_exp,), dtype=dtype)
+        d_performance = np.zeros((n_exp,), dtype=dtype)
+
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
         for i, (field, value) in enumerate(zip(fields, values)):
