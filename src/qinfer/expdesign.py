@@ -294,7 +294,7 @@ class SPSAHeuristic(Heuristic):
         # If we have no current data, initialise using the initial position function passes as an additional argument to the updater
         if len(self._updater._experiment_record) == 0:
             self._updater.model.expparams_dtype
-            fields = [field for field in [self._updater.model.expparams_dtype][0][0]]
+            fields = [field for (field, _) in self._updater.model.expparams_dtype]
             values = self._initial_position(len(fields))
 
             eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
