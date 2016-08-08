@@ -17,7 +17,7 @@ class heuristic_simulation():
 			tskmon_client=None,
         	allow_failures=False,
         	extra_updater_args=None,
-        	progressbar=None
+        	progressbar=None,
         	heuristic_args=None
 		):
 
