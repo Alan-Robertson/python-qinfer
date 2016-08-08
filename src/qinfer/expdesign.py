@@ -329,11 +329,11 @@ class SPSAHeuristic(Heuristic):
         u_delta = u_est_mean - true_mps
         u_loss = np.dot(u_delta**2, self._updater.model.Q)
 
-        u_performance[range(2)]['true'] = true_mps
-        u_performance[range(2)]['loss'] = u_loss
-        u_performance[range(2)]['resample_count'] = self._updater.resample_count
-        u_performance[range(2)]['outcome'] = u_datum
-        u_performance[range(2)]['est'] = u_est_mean
+        u_performance['true'] = true_mps
+        u_performance['loss'] = u_loss
+        u_performance['resample_count'] = self._updater.resample_count
+        u_performance['outcome'] = u_datum
+        u_performance['est'] = u_est_mean
 
         # SPSA f(x - alpha * delta)
         d_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
@@ -349,14 +349,14 @@ class SPSAHeuristic(Heuristic):
         d_delta = d_est_mean - true_mps
         d_loss = np.dot(d_delta**2, self._updater.model.Q)
 
-        d_performance[range(2)]['true'] = true_mps
-        d_performance[range(2)]['loss'] = d_loss
-        d_performance[range(2)]['resample_count'] = self._updater.resample_count
-        d_performance[range(2)]['outcome'] = d_datum
-        d_performance[range(2)]['est'] = d_est_mean
+        d_performance['true'] = true_mps
+        d_performance['loss'] = d_loss
+        d_performance['resample_count'] = self._updater.resample_count
+        d_performance['outcome'] = d_datum
+        d_performance['est'] = d_est_mean
 
         # Calculate g
-        g = (self._experiment_fitness(u_performance) + self._experiment_fitness(d_performance)) * delta / (2 * alpha)
+        g = (self._experiment_fitness(u_performance) - self._experiment_fitness(d_performance)) * delta / (2 * alpha)
 
         # SPSA x' = x + g * beta
         for i, (key, val) in enumerate(expparams.items()):

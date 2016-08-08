@@ -20,7 +20,6 @@ class ParticleSwarmUpdater(object):
 		self._p_best_val = None;
 		self._g_best = None;
 
-	## METHODS ##
 	def __call__(self, points, velocities):
 
 		# For no initial velocities
@@ -47,7 +46,6 @@ class ParticleSwarmUpdater(object):
 			points[idx], velocities[idx], vals[idx], self._p_best[idx], self._p_best_val[idx] = self.pointupdate(point, velocity, self._p_best[idx], self._g_best)
 
 		val, self._g_best = min_first((value, point) for value, point in zip(self._p_best_val, self._p_best))
-		#val, g_best = min((self._p_best_val[i], self._p_best[i]) for i in xrange(len(self._p_best))) 
 
 		return points, velocities, vals
 
