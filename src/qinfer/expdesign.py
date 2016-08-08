@@ -309,9 +309,17 @@ class SPSAHeuristic(Heuristic):
         beta = self.b/(1 + self.k)**self.t
         self.k += 1
 
+
+        PERFORMANCE_DTYPE = [
+            ('loss', float),
+            ('resample_count', int),
+            ('elapsed_time', float),
+            ('outcome', int)
+        ]
+
         # Stores performance data
-        u_performance = np.zeros((1,), dtype=dtype)
-        d_performance = np.zeros((1,), dtype=dtype)
+        u_performance = np.zeros((1,), dtype=PERFORMANCE_DTYPE)
+        d_performance = np.zeros((1,), dtype=PERFORMANCE_DTYPE)
 
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
