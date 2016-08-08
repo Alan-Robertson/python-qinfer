@@ -356,7 +356,7 @@ class SPSAHeuristic(Heuristic):
         d_performance['est'] = d_est_mean
 
         # Calculate g
-        g = (self._experiment_fitness(u_performance) - self._experiment_fitness(d_performance)) * delta / (2 * alpha)
+        g = np.multiply((self._experiment_fitness(u_performance) - self._experiment_fitness(d_performance)),  delta / (2 * alpha))
 
         # SPSA x' = x + g * beta
         for i, (key, val) in enumerate(expparams.items()):
