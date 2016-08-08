@@ -270,7 +270,7 @@ class SPSAHeuristic(Heuristic):
     Implements SPSA as a heuristic
     '''
 
-    def __init__(self, updater, experiment_fitness, other_fields=None, A=0, a=3, b=0.1, t=1/6, s=1, initial_position=lambda n: np.random.random(n)):
+    def __init__(self, updater, other_fields=None, A=0, a=3, b=0.1, t=1/6, s=1, initial_position=lambda n: np.random.random(n)):
         super(SPSAHeuristic, self).__init__(updater)
         self._other_fields = other_fields if other_fields is not None else {}
         self.A = A
@@ -279,7 +279,7 @@ class SPSAHeuristic(Heuristic):
         self.t = t
         self.s = s
         self.k = 0
-        self._experiment_fitness = experiment_fitness #This must be passed using partial, else as a "heuristic args" parameter to the heuristic simulator
+        self._experiment_fitness = other_fields['experiment_fitness'] #This must be passed using partial, else as a "heuristic args" parameter to the heuristic simulator
         self._initial_position = initial_position
 
     def __call__(self):
