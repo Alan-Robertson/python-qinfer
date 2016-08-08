@@ -28,7 +28,7 @@ class heuristic_simulation():
 		self._prior = prior # The prior used in the experiment analysis
 		self._param_names = param_names # The parameters of the heuristic
 		if heuristic_args is not None:
-			heuristic = partial(heuristic, heuristic_args)
+			heuristic = partial(heuristic, keywords=heuristic_args)
 		self._heuristic = partial(partial, heuristic) # The heuristic being used
 		self._experiment_fitness = experiment_fitness # The evaluation of the heuristic, defaults to the loss
 		self._apply=apply
