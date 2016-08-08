@@ -55,6 +55,7 @@ from abc import ABCMeta, abstractmethod
 import warnings
 
 from qinfer.finite_difference import *
+from qinfer.perf_testing import actual_dtype
 
 ## FUNCTIONS ###################################################################
 
@@ -309,17 +310,10 @@ class SPSAHeuristic(Heuristic):
         beta = self.b/(1 + self.k)**self.t
         self.k += 1
 
-
-        PERFORMANCE_DTYPE = [
-            ('loss', float),
-            ('resample_count', int),
-            ('elapsed_time', float),
-            ('outcome', int)
-        ]
-
+        dtype = actual_dtype(self._updater.model)
         # Stores performance data
-        u_performance = np.zeros((1,), dtype=PERFORMANCE_DTYPE)
-        d_performance = np.zeros((1,), dtype=PERFORMANCE_DTYPE)
+        u_performance = np.zeros((1,), dtype=dtype)
+        d_performance = np.zeros((1,), dtype=dtype)
 
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
