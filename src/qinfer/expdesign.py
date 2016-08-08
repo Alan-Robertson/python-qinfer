@@ -345,7 +345,7 @@ class SPSAHeuristic(Heuristic):
         self._updater.update(d_datum, d_expparams)
 
         # Performance data
-        d_est_mean = d_updater.est_mean()
+        d_est_mean = updater.est_mean()
         d_delta = d_est_mean - true_mps
         d_loss = np.dot(d_delta**2, self._updater.model.Q)
 
