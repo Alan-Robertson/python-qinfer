@@ -331,7 +331,7 @@ class SPSAHeuristic(Heuristic):
 
         u_performance[0]['true'] = true_mps
         u_performance[0]['loss'] = u_loss
-        u_performance[0]['resample_count'] = updater.resample_count
+        u_performance[0]['resample_count'] = self._updater.resample_count
         u_performance[0]['outcome'] = u_datum
         u_performance[0]['est'] = u_est_mean
 
@@ -351,7 +351,7 @@ class SPSAHeuristic(Heuristic):
 
         d_performance[0]['true'] = true_mps
         d_performance[0]['loss'] = d_loss
-        d_performance[0]['resample_count'] = updater.resample_count
+        d_performance[0]['resample_count'] = self._updater.resample_count
         d_performance[0]['outcome'] = d_datum
         d_performance[0]['est'] = d_est_mean
 
