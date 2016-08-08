@@ -359,8 +359,8 @@ class SPSAHeuristic(Heuristic):
         g = np.multiply((self._experiment_fitness(u_performance) - self._experiment_fitness(d_performance)),  delta / (2 * alpha))
 
         # SPSA x' = x + g * beta
-        for i, (key, val) in enumerate(expparams.items()):
-            expparams[key] = val + g[i] * beta
+        for i, (field, value) in enumerate(expparams):
+            expparams[field] = value + g[i] * beta
 
         return expparams
 
