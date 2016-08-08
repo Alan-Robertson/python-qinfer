@@ -312,8 +312,8 @@ class SPSAHeuristic(Heuristic):
 
         dtype = actual_dtype(self._updater.model)
         # Stores performance data
-        u_performance = np.zeros(1, dtype=dtype)
-        d_performance = np.zeros(1, dtype=dtype)
+        u_performance = {}#np.zeros(1, dtype=dtype)
+        d_performance = {}#np.zeros(1, dtype=dtype)
 
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
