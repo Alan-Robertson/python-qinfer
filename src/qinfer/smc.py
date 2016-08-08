@@ -118,7 +118,6 @@ class SMCUpdater(Distribution):
             track_resampling_divergence=False,
             zero_weight_policy='error', zero_weight_thresh=None,
             canonicalize=True, 
-            heuristic_params=None
         ):
 
         # Initialize zero-element arrays such that n_particles is always
@@ -131,7 +130,6 @@ class SMCUpdater(Distribution):
         
         self.model = model
         self.prior = prior
-        self._heuristic_params = heuristic_params
 
         # Record whether we are to canonicalize or not.
         self._canonicalize = bool(canonicalize)
