@@ -58,7 +58,7 @@ class particle_swarm_optimiser(optimiser):
 		N_PSO_ITERATIONS=50,
 		N_PSO_PARTICLES=60,
 		dist_mean=0, dist_scale=1,
-		omega_v=0.2, phi_p=0.4, phi_g=0.4,
+		omega_v=0.7, phi_p=0.5, phi_g=1,
 		verbose=False,
 		client=None):
 
@@ -155,7 +155,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 		if (TEMPER_VALUES is None):
 			TEMPER_VALUES = np.random.random((N_TEMPER_CATEGORIES, 3))
 		else:
-			N_TEMPER_CATEGORIES=TEMPER_VALUES.len
+			N_TEMPER_CATEGORIES=len(TEMPER_VALUES)
 
 		self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._PARAMS)))
 		self._val_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 

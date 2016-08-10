@@ -365,6 +365,32 @@ class SPSAHeuristic(Heuristic):
         return expparams
 
 
+class RBHeuristic(Heuristic):
+
+    def __init__(self, updater, other_fields=None, a=1):
+        self._updater = updater
+        self._other_fields = other_fields if other_fields is not None else {}
+        self.a = a
+
+    def __call__(self):
+
+        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+
+        # Initial iteration
+        if len(self._updater._experiment_record) == 0:
+            self._updater.model.expparams_dtype
+            fields = [field for (field, _) in self._updater.model.expparams_dtype]
+            values = self._updater.prior.sample()
+            for field, value in zip(fields, values):
+                eps[field] = value
+            return eps
+
+        eps['m'] = self.a / np.abs(1 - self._updater._experiment_record['p'])
+        
+        return eps
+
+
+
 
 class ExperimentDesigner(object):
     """
