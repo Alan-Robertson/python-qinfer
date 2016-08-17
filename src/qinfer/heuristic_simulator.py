@@ -39,8 +39,6 @@ class heuristic_simulation():
 		self._extra_updater_args = extra_updater_args
 		self._progressbar = progressbar
 
-		self._performance_history = None
-
 	def __call__(self, params):
 	    performance = perf_test_multiple(
 	        n_trials = self._n_trials, 
@@ -62,9 +60,8 @@ class heuristic_simulation():
 	    return self._experiment_fitness(performance)
 
 	def simulate_n_exp(self, params, n_exp_range):
-		data = np.zeros(len(n_exp_range))
-		self._performance_history = np.zeros(len(n_exp_range))
-		for i, n_exp in enumerate(n_exp_range):
+		data = {}
+		for n_exp in enumerate(n_exp_range):
 			performance = perf_test_multiple(
 		        n_trials = self._n_trials, 
 		        model = self._model, 
@@ -82,7 +79,6 @@ class heuristic_simulation():
 	        	extra_updater_args = self._extra_updater_args,
 	        	progressbar = self._progressbar
 			)
-			self._performance_history[i] = performance
-			data[i] = self._experiment_fitness(performance)
+			data[n_exp] = self._experiment_fitness(performance)
 		return data
 
