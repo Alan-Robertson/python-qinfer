@@ -15,8 +15,6 @@ class optimiser(object):
 				FITNESS_FUNCTION,
 				PARAMS,
 				BOUNDARY_CONDITIONS=lambda points: points
-				fixed_params = None
-				fixed_param_values = None
 				): 
 			self._PARAMS = PARAMS # Parameter names of the parameters of the heuristic
 			self._FITNESS_FUNCTION = FITNESS_FUNCTION # Evaluates the fitness of a performance dataset
