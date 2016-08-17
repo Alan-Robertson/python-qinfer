@@ -15,6 +15,8 @@ class optimiser(object):
 				FITNESS_FUNCTION,
 				PARAMS,
 				BOUNDARY_CONDITIONS=lambda points: points
+				fixed_params = None
+				fixed_param_values = None
 				): 
 			self._PARAMS = PARAMS # Parameter names of the parameters of the heuristic
 			self._FITNESS_FUNCTION = FITNESS_FUNCTION # Evaluates the fitness of a performance dataset
@@ -108,7 +110,7 @@ class particle_swarm_annealing_optimiser(optimiser):
 		COOLING_RATE = 0.99,
 		ASYM_COOLING_RATE = None,
 		dist_mean=0, dist_scale=1,
-		omega_v=0.2, phi_p=0.4, phi_g=0.4,
+		omega_v=0.7, phi_p=0.5, phi_g=1,
 		verbose=False,
 		client=None):
 

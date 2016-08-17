@@ -39,6 +39,8 @@ class heuristic_simulation():
 		self._extra_updater_args = extra_updater_args
 		self._progressbar = progressbar
 
+		self._performance_history = None
+
 	def __call__(self, params):
 	    performance = perf_test_multiple(
 	        n_trials = self._n_trials, 
@@ -58,3 +60,29 @@ class heuristic_simulation():
         	progressbar = self._progressbar
 	    )
 	    return self._experiment_fitness(performance)
+
+	def simulate_n_exp(self, params, n_exp_range):
+		data = np.zeros(len(n_exp_range))
+		self._performance_history = np.zeros(len(n_exp_range))
+		for i, n_exp in enumerate(n_exp_range):
+			performance = perf_test_multiple(
+		        n_trials = self._n_trials, 
+		        model = self._model, 
+		        n_particles = self._n_particles, 
+		        prior = self._prior, 
+		        n_exp = n_exp,
+		        heuristic_class  = self._heuristic(**{
+		            name: param
+		            for name, param in zip(self._param_names, params)
+		        }), 
+		        apply = self._apply,
+		        true_model = self._true_model, true_prior = self._true_prior,
+		        tskmon_client = self._tskmon_client,
+	        	allow_failures = self._allow_failures,
+	        	extra_updater_args = self._extra_updater_args,
+	        	progressbar = self._progressbar
+	    	)
+			self._performance_history[i] = performance
+	    	data[i] = self._experiment_fitness(performance)
+	    return data
+
