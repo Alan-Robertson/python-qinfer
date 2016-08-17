@@ -81,8 +81,8 @@ class heuristic_simulation():
 	        	allow_failures = self._allow_failures,
 	        	extra_updater_args = self._extra_updater_args,
 	        	progressbar = self._progressbar
-	    	)
+			)
 			self._performance_history[i] = performance
-	    	data[i] = self._experiment_fitness(performance)
-	    return data
+			data[i] = self._experiment_fitness(performance)
+		return data
 
