@@ -258,7 +258,8 @@ class SPSA_optimiser(optimiser):
                     *  delta_k / (2 * alpha(iteration)))
 
             # Save the point history
-            self._point_history[iteration], self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
+            self._point_history[iteration] = points
+            self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
 
         g_best, g_best_val = min(self._val_history[N_SPSA_ITERATIONS-1])
 
