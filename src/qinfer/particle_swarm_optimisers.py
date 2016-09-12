@@ -240,7 +240,7 @@ class SPSA_optimiser(optimiser):
         self._point_history = np.empty((N_SPSA_ITERATIONS, N_SPSA_PARTICLES, len(self._PARAMS)))
         self._val_history = np.empty((N_SPSA_ITERATIONS, N_SPSA_PARTICLES))
 
-        points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
+        points = np.random.random((N_SPSA_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
 
         self._point_history[0] = points
         self._val_history[0] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
