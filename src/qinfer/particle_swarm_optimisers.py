@@ -253,13 +253,14 @@ class SPSA_optimiser(optimiser):
 
                 # Calculate the point updates
                 points[particle] += (beta(iteration) 
-                    * (self._FITNESS_FUNCTION(spsa_x - alpha(iteration)*delta_k) 
-                    -  self._FITNESS_FUNCTION(spsa_x + alpha(iteration)*delta_k)) 
-                    *  delta_k / (2 * alpha(i)))
+                    * (self._FITNESS_FUNCTION(points[particle] - alpha(iteration)*delta_k) 
+                    -  self._FITNESS_FUNCTION(points[particle] + alpha(iteration)*delta_k)) 
+                    *  delta_k / (2 * alpha(iteration)))
 
             # Save the point history
-            self._point_history[iteration] = points
-            self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
+            self._point_history[iteration], self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
 
-        return min(self._val_history[N_SPSA_ITERATIONS])
+        g_best, g_best_val = min(self._val_history[N_SPSA_ITERATIONS-1])
+
+        return g_best, g_best_v
             
