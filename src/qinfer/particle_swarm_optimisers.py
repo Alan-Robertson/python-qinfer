@@ -29,7 +29,7 @@ class optimiser(object):
 		plt.scatter(point_filter[0], point_filter[1], c=point_vals, s=size, cmap=cmap)
 
 
-	def plot_path(self, x=0, y=1, p_plot=[0], size=15, cmap='hot'):
+	def plot_path(self, x=0, y=1, p_plot=[0], size=15, cmap='hot', params=None):
 		for p in p_plot:
 			point_filter = self._point_history[:,p,[x,y]][:-1,:]
 			point_vals = self._val_history[:-1,p]
@@ -37,7 +37,7 @@ class optimiser(object):
 			plt.plot(point_filter[:,0], point_filter[:,1])
 			plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
 
-	def plot_opt_history(self):
+	def plot_opt_history(self, params=None):
 		N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
 		history = np.zeros(N_PSO_ITERATIONS)
 
@@ -170,7 +170,7 @@ class particle_swarm_tempering_optimiser(optimiser):
 
 		# Initialise the points, velocities and values
 		points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
-		velocities = np.zeros(points.shape)
+		velocities = 2*np.zeros(points.shape) - 1
 		vals = np.zeros(N_PSO_PARTICLES)
 		self._point_history[0] = points
 
@@ -219,3 +219,49 @@ class particle_swarm_tempering_optimiser(optimiser):
 					particle._p_best_val = p_best_val[temper_map[p_idx]]
 
 		return g_best, g_best_val
+
+class SPSA_optimiser(optimiser):
+
+	def __call__(self, 
+		N_SPSA_ITERATIONS=50,
+		N_SPSA_PARTICLES=60,
+		dist_mean=0, dist_scale=1,
+		A = 0, s = 1/3, t = 1, 
+		a = 0.5, b = 0.5,
+		verbose=False,
+		client=None):
+
+		# SPSA functions
+		alpha = lambda k: a / (1 + A + k)**s
+		beta  = lambda k: b / (1 + k)**t
+		delta = lambda d: (2 * np.round(np.random.random(d))) - 1
+
+		# Initialise the swarm and the points
+		self._point_history = np.empty((N_SPSA_ITERATIONS, N_SPSA_PARTICLES, len(self._PARAMS)))
+		self._val_history = np.empty((N_SPSA_ITERATIONS, N_SPSA_PARTICLES))
+
+		points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
+
+		self._point_history[0] = points
+		self._val_history[0] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
+
+
+    	for iteration in xrange(1,N_SPSA_ITERATIONS):
+	        for particle in xrange(N_SPSA_PARTICLES):
+	        	
+	        	# Generate delta
+	            delta_k = delta(len(self._PARAMS))
+
+	            # Calculate the point updates
+	            points[particle] += (beta(iteration) 
+	            	* (self._FITNESS_FUNCTION(spsa_x - alpha(iteration)*delta_k) 
+	            	-  self._FITNESS_FUNCTION(spsa_x + alpha(iteration)*delta_k)) 
+	            	*  delta_k / (2 * alpha(i)))
+
+	        # Save the point history
+	        self._point_history[iteration] = points
+	    	self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
+
+				
+		return min(self._val_history[N_SPSA_ITERATIONS])
+			

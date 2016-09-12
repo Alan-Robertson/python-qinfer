@@ -289,7 +289,7 @@ class SPSAHeuristic(Heuristic):
 
         # If we have no current data, initialise using the initial position function passes as an additional argument to the updater
         if len(self._updater._experiment_record) == 0:
-            self._updater.model.expparams_dtype
+            self._updater.model.expparams_dtype #Hypothetical update, sample MPS from posterior
             fields = [field for (field, _) in self._updater.model.expparams_dtype]
             values = self._initial_position(len(fields))
 
@@ -312,8 +312,8 @@ class SPSAHeuristic(Heuristic):
 
         dtype = actual_dtype(self._updater.model)
         # Stores performance data
-        u_performance = {}#np.zeros(1, dtype=dtype)
-        d_performance = {}#np.zeros(1, dtype=dtype)
+        u_performance = {}
+        d_performance = {}
 
         #SPSA f(x + alpha * delta)
         u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
