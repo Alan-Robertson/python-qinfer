@@ -385,7 +385,7 @@ class RBHeuristic(Heuristic):
                 eps[field] = value
             return eps
 
-        eps['m'] = self.a / np.abs(1 - self._updater._experiment_record['p'])
+        eps['p'] = self.a / np.abs(1 - self._updater._experiment_record['p'])
         
         return eps
 

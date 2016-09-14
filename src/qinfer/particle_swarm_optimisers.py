@@ -58,7 +58,7 @@ class particle_swarm_optimiser(optimiser):
         N_PSO_ITERATIONS=50,
         N_PSO_PARTICLES=60,
         dist_mean=0, dist_scale=1,
-        omega_v=0.7, phi_p=0.5, phi_g=1,
+        omega_v=0.35, phi_p=0.25, phi_g=0.5,
         verbose=False,
         client=None):
 
@@ -106,14 +106,13 @@ class particle_swarm_annealing_optimiser(optimiser):
         N_PSO_ITERATIONS=50,
         N_PSO_PARTICLES=60,
         COOLING_RATE = 0.99,
-        ASYM_COOLING_RATE = None,
         dist_mean=0, dist_scale=1,
-        omega_v=0.7, phi_p=0.5, phi_g=1,
+        omega_v=0.35, phi_p=0.25, phi_g=0.5,
         verbose=False,
         client=None):
 
-        if (ASYM_COOLING_RATE is None):
-            ASYM_COOLING_RATE = [COOLING_RATE, COOLING_RATE, COOLING_RATE]
+    	# Acceptance rate for rejection
+        acceptance_rate = 1
 
         self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._PARAMS)))
         self._val_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 
@@ -127,14 +126,19 @@ class particle_swarm_annealing_optimiser(optimiser):
         for idx in xrange(N_PSO_ITERATIONS):
             if verbose:
                 print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
-            points, velocities, vals = pso(points, velocities)
+            points_u, velocities_u, vals_u = pso(points, velocities)
+
+            for idx_val, _ in enumerate(vals_u):
+            	if vals_u[idx_val] * (1 - acceptance_rate) < vals[idx_val]:
+            		points[idx_val] = points_u[idx_val]
+            		velocities[idx_val] = velocities_u[idx_val]
+            		vals[idx_val] = vals_u[idx_val]
+
             points = self._BOUNDARY_CONDITIONS(points)
             self._point_history[idx+1] = points
             self._val_history[idx+1] = vals
 
-            pso._omega_v *= ASYM_COOLING_RATE[0]
-            pso._phi_p *= ASYM_COOLING_RATE[1]
-            pso._phi_g *= ASYM_COOLING_RATE[2]
+            acceptance_rate*=COOLING_RATE
 
 
         return pso._g_best, min(pso._p_best_val)
