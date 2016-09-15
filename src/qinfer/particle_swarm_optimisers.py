@@ -188,7 +188,9 @@ class particle_swarm_tempering_optimiser(optimiser):
         # Initial run
         for p_idx, particle in enumerate(pso):
             points[temper_map[p_idx]], velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], None)
-
+        self._point_history[0] = points
+        self._val_history[0] = vals
+        
         # The particle swarm iterations
         for idx in xrange(N_PSO_ITERATIONS):
             if verbose:
