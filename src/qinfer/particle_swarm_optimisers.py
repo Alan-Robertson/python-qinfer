@@ -94,7 +94,7 @@ class particle_swarm_optimiser(optimiser):
         if verbose:
                 print '100 Percent Complete'
 
-        return pso._g_best, min(pso._p_best_val)
+        return pso._g_best, pso._g_best_val
 
 class particle_swarm_annealing_optimiser(optimiser):
 
@@ -141,7 +141,7 @@ class particle_swarm_annealing_optimiser(optimiser):
             acceptance_rate*=COOLING_RATE
 
 
-        return pso._g_best, min(pso._p_best_val)
+        return pso._g_best, pso._g_best_val
     
 
 class particle_swarm_tempering_optimiser(optimiser):
@@ -202,8 +202,8 @@ class particle_swarm_tempering_optimiser(optimiser):
                 points[temper_map[p_idx]] = self._BOUNDARY_CONDITIONS(points[temper_map[p_idx]])
 
             # Save the point history
-            self._point_history[idx] = points
-            self._val_history[idx] = vals
+            self._point_history[idx+1] = points
+            self._val_history[idx+1] = vals
 
             # After the required number of iterations the distribution is tempered
             if (idx % TEMPER_FREQUENCY == 0) and (0 != idx):
