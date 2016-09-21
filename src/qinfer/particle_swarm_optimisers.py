@@ -308,7 +308,7 @@ class SPSA_optimiser(optimiser):
             self._point_history[iteration] = points
             self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
 
-        g_best_val, g_best = min(zip(self._val_history[N_SPSA_ITERATIONS], self._point_history[N_SPSA_ITERATIONS]))
+        g_best_val = min(self._val_history[N_SPSA_ITERATIONS-1])
 
         return g_best_val
             
