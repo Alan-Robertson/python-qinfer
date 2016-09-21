@@ -96,7 +96,7 @@ class particle_swarm_optimiser(optimiser):
 
         return pso._g_best, pso._g_best_val
 
-class particle_swarm_annealing_optimiser(optimiser):
+class particle_swarm_rejection_annealing_optimiser(optimiser):
 
     # A particle swarm object that performs annealing during the optimisation,
     # The annealing is set by the cooling rate, or may be set for each parameter individually
@@ -143,6 +143,46 @@ class particle_swarm_annealing_optimiser(optimiser):
 
 
         return pso._g_best, pso._g_best_val
+
+
+class particle_swarm_annealing_optimiser(optimiser):
+    def __call__(self, 
+        N_PSO_ITERATIONS=50,
+        N_PSO_PARTICLES=60,
+        COOLING_RATE = 0.99,
+        ASYM_COOLING_RATE = None,
+        dist_mean=0, dist_scale=1,
+        omega_v=0.7, phi_p=0.5, phi_g=1,
+        verbose=False,
+        client=None):
+
+        if (ASYM_COOLING_RATE is None):
+            ASYM_COOLING_RATE = [COOLING_RATE, COOLING_RATE, COOLING_RATE]
+
+        self._point_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES, len(self._PARAMS)))
+        self._val_history = np.empty((N_PSO_ITERATIONS+1, N_PSO_PARTICLES)) 
+
+        pso = ParticleSwarmUpdater(self._FITNESS_FUNCTION, omega_v, phi_p, phi_g)
+        points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
+        self._point_history[0] = points
+
+        points, velocities, vals = pso(points, None)
+
+        for idx in xrange(N_PSO_ITERATIONS):
+            if verbose:
+                print '%d Percent Complete' %((100*idx)//N_PSO_ITERATIONS)
+            points, velocities, vals = pso(points, velocities)
+            points = self._BOUNDARY_CONDITIONS(points)
+            self._point_history[idx+1] = points
+            self._val_history[idx+1] = vals
+
+            pso._omega_v *= ASYM_COOLING_RATE[0]
+            pso._phi_p *= ASYM_COOLING_RATE[1]
+            pso._phi_g *= ASYM_COOLING_RATE[2]
+
+
+        return pso._g_best, min(pso._p_best_val)
+
     
 
 class particle_swarm_tempering_optimiser(optimiser):
@@ -190,7 +230,7 @@ class particle_swarm_tempering_optimiser(optimiser):
             points[temper_map[p_idx]], velocities[temper_map[p_idx]], vals[temper_map[p_idx]] = particle(points[temper_map[p_idx]], None)
         self._point_history[0] = points
         self._val_history[0] = vals
-        
+
         # The particle swarm iterations
         for idx in xrange(N_PSO_ITERATIONS):
             if verbose:
@@ -268,7 +308,7 @@ class SPSA_optimiser(optimiser):
             self._point_history[iteration] = points
             self._val_history[iteration] = [self._FITNESS_FUNCTION(points[particle]) for particle in xrange(N_SPSA_PARTICLES)]
 
-        g_best_val = min(self._val_history[N_SPSA_ITERATIONS-1])
+        g_best_val, g_best = min(zip(self._val_history[N_SPSA_ITERATIONS], self._point_history[N_SPSA_ITERATIONS]))
 
         return g_best_val
             
