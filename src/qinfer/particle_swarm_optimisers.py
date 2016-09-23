@@ -51,7 +51,7 @@ class optimiser(object):
 
 
     def plot_opt_history(self, params=None):
-        plt.plot(opt_history)
+        plt.plot(self.opt_history())
 
 
 #Interface for the Particle Swarm Updater
@@ -167,9 +167,10 @@ class particle_swarm_annealing_optimiser(optimiser):
 
         pso = ParticleSwarmUpdater(self._FITNESS_FUNCTION, omega_v, phi_p, phi_g)
         points = np.random.random((N_PSO_PARTICLES, len(self._PARAMS))) * dist_scale + dist_mean
-        self._point_history[0] = points
 
         points, velocities, vals = pso(points, None)
+        self._point_history[0] = points
+        self._val_history[0] = vals
 
         for idx in xrange(N_PSO_ITERATIONS):
             if verbose:
