@@ -32,13 +32,13 @@ class optimiser(object):
     def plot_path(self, x=0, y=1, p_plot=[0], size=15, cmap='hot', params=None):
         for p in p_plot:
             point_filter = self._point_history[:,p,[x,y]][:-1,:]
-            point_vals = self._val_history[:-1,p]
+            point_vals = self._val_history[1:,p]
 
             plt.plot(point_filter[:,0], point_filter[:,1])
             plt.scatter(point_filter[:,0], point_filter[:,1], c=point_vals, s=size,cmap=cmap)
 
-    def plot_opt_history(self, params=None):
-        N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
+    def opt_history(self):
+    	N_PSO_ITERATIONS, N_PSO_PARTICLES, N_PARAMS = self._point_history.shape
         history = np.zeros(N_PSO_ITERATIONS)
 
         c_best = min(self._val_history[0,:])
@@ -47,8 +47,11 @@ class optimiser(object):
         for i in range(N_PSO_ITERATIONS):
             history[i] = min(c_best, min(self._val_history[i,:]))
             c_best = history[i]
+        return history
 
-        plt.plot(history)
+
+    def plot_opt_history(self, params=None):
+        plt.plot(opt_history)
 
 
 #Interface for the Particle Swarm Updater
