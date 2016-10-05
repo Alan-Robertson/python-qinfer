@@ -367,29 +367,28 @@ class SPSAHeuristic(Heuristic):
 
 class RBHeuristic(Heuristic):
 
-    def __init__(self, updater, other_fields=None, a=1):
+    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
         self._updater = updater
         self._other_fields = other_fields if other_fields is not None else {}
-        self.a = a
+        self.a = a # Scalar factor
+        self.t = t # Sweeping time
+        self.q = q # Initial M
+        self.s = s # M step size
 
     def __call__(self):
 
         eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
 
-        # Initial iteration
-        if len(self._updater._experiment_record) == 0:
-            self._updater.model.expparams_dtype
-            fields = [field for (field, _) in self._updater.model.expparams_dtype]
-            values = self._updater.prior.sample()
-            for field, value in zip(fields, values):
-                eps[field] = value
-            return eps
+        # Number of iterations
+        t = len(self._updater.data_record) + 1 
 
-        eps['p'] = self.a / np.abs(1 - self._updater._experiment_record['p'])
+        if t <= self.t:
+            eps['m'] = self.q + self.s * (t - 1)
+        else:
+            p_est, _, _ = self._updater.est_mean()
+            eps['m'] = np.floor(self.a / (1 + p_est))
         
         return eps
-
-
 
 
 class ExperimentDesigner(object):
