@@ -383,7 +383,7 @@ class RBHeuristic(Heuristic):
         t = len(self._updater.data_record) + 1 
 
         if t <= self.t:
-            eps['m'] = self.q + self.s * (t - 1)
+            eps['m'] = np.floor(self.q + self.s * (t - 1))
         else:
             p_est, _, _ = self._updater.est_mean()
             eps['m'] = np.floor(self.a / (1 + p_est))
