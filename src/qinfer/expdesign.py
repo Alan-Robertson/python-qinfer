@@ -391,6 +391,45 @@ class RBHeuristic(Heuristic):
         return eps
 
 
+class ExpSparsePettaHeuristic(Heuristic):
+    r"""
+    Implements the exponentially-sparse time evolution heuristic
+    of [FGC12]_, under which :math:`t_k = A b^k`, where :math:`A`
+    and :math:`b` are parameters of the heuristic.
+
+    :param qinfer.smc.SMCUpdater updater: Posterior updater for which
+        experiments should be heuristicly designed.
+    :param float scale: The value of :math:`A`, implicitly setting
+        the frequency scale for the problem.
+    :param float base: The base of the exponent; in general, should
+        be closer to 1 for higher-dimensional models.
+    :param str t_field: Name of the expparams field representing time.
+        If None, then the generated expparams are taken to be scalar,
+        and not a record.
+    :param dict other_fields: Values of the other fields to be used
+        in designed experiments.
+    """
+
+    def __init__(self,
+            updater, scale=1, base=9/8,
+            t_field=None, other_fields=None
+        ):
+        super(ExpSparseHeuristic, self).__init__(updater)
+        self._scale = scale
+        self._base = base
+        self._t_field = t_field
+
+    def __call__(self):
+        n_exps = len(self._updater.data_record)
+        t = self._scale * (self._base ** n_exps)
+        dtype = self._updater.model.expparams_dtype
+        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+        eps[self._t_field] = t
+        return eps
+
+
+
+
 class ExperimentDesigner(object):
     """
     Designs new experiments using the current best information provided by a
