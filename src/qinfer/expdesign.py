@@ -414,7 +414,7 @@ class ExpSparsePettaHeuristic(Heuristic):
             updater, scale=1, base=9/8,
             t_field=None, other_fields=None
         ):
-        self._update = updater
+        self._updater = updater
         self._scale = scale
         self._base = base
         self._t_field = t_field
