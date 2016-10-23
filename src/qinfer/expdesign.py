@@ -412,7 +412,7 @@ class ExpSparsePettaHeuristic(Heuristic):
 
     def __init__(self,
             updater, scale=1, base=9/8,
-            t_field='time', other_fields=None
+            t_field='exchangetime', other_fields=None
         ):
         self._updater = updater
         self._scale = scale
@@ -422,7 +422,7 @@ class ExpSparsePettaHeuristic(Heuristic):
     def __call__(self):
         n_exps = len(self._updater.data_record)
         t = self._scale * (self._base ** n_exps)
-        eps = {}
+        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
         eps[self._t_field] = t
         return eps
 
