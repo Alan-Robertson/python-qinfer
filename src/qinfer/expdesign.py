@@ -412,9 +412,8 @@ class ExpSparsePettaHeuristic(Heuristic):
 
     def __init__(self,
             updater, scale=1, base=9/8,
-            t_field=None, other_fields=None
+            t_field='time', other_fields=None
         ):
-        super(ExpSparseHeuristic, self).__init__(updater)
         self._scale = scale
         self._base = base
         self._t_field = t_field
