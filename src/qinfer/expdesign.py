@@ -367,9 +367,8 @@ class SPSAHeuristic(Heuristic):
 
 class RBHeuristic(Heuristic):
 
-    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4, field='m'):
+    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
         self._updater = updater
-        self._field = field
         self._other_fields = other_fields if other_fields is not None else {}
         self.a = a # Scalar factor
         self.t = t # Sweeping time
@@ -384,15 +383,15 @@ class RBHeuristic(Heuristic):
         t = len(self._updater.data_record) + 1 
 
         if t <= self.t:
-            eps[self._field] = np.floor(self.q + self.s * (t - 1))
+            eps['m'] = np.floor(self.q + self.s * (t - 1))
         else:
             p_est, _, _ = self._updater.est_mean()
-            eps[self._field]  = np.floor(self.a / (1 + p_est))
+            eps['m'] = np.floor(self.a / (1 + p_est))
         
         return eps
 
 
-class PettaHeuristic(Heuristic):
+class ExpSparsePettaHeuristic(Heuristic):
     r"""
     Implements the exponentially-sparse time evolution heuristic
     of [FGC12]_, under which :math:`t_k = A b^k`, where :math:`A`
@@ -425,6 +424,33 @@ class PettaHeuristic(Heuristic):
         t = self._scale * (self._base ** n_exps)
         eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
         eps[self._t_field] = t
+        return eps
+
+
+class PettaHeuristic(Heuristic):
+
+    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4, field='m'):
+        self._updater = updater
+        self._field = field
+        self._other_fields = other_fields if other_fields is not None else {}
+        self.a = a # Scalar factor
+        self.t = t # Sweeping time
+        self.q = q # Initial M
+        self.s = s # M step size
+
+    def __call__(self):
+
+        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
+
+        # Number of iterations
+        t = len(self._updater.data_record) + 1 
+
+        if t <= self.t:
+            eps[self._field] = np.floor(self.q + self.s * (t - 1))
+        else:
+            p_est = self._updater.est_mean()
+            eps[self._field]  = np.floor(self.a / (1 + p_est))
+        
         return eps
 
 
