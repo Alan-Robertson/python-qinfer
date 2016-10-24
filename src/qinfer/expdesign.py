@@ -431,7 +431,6 @@ class PettaHeuristic(Heuristic):
 
     def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
         self._updater = updater
-        self._field = field
         self._other_fields = other_fields if other_fields is not None else {}
         self.a = a # Scalar factor
         self.t = t # Sweeping time
