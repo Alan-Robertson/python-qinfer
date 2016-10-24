@@ -429,7 +429,7 @@ class ExpSparsePettaHeuristic(Heuristic):
 
 class PettaHeuristic(Heuristic):
 
-    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4, field='m'):
+    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
         self._updater = updater
         self._field = field
         self._other_fields = other_fields if other_fields is not None else {}
@@ -446,10 +446,10 @@ class PettaHeuristic(Heuristic):
         t = len(self._updater.data_record) + 1 
 
         if t <= self.t:
-            eps[self._field] = np.floor(self.q + self.s * (t - 1))
+            eps['exchangetime'] = np.floor(self.q + self.s * (t - 1))
         else:
             p_est = self._updater.est_mean()
-            eps[self._field]  = np.floor(self.a / (1 + p_est))
+            eps['exchangetime']  = np.floor(self.a / (1 + p_est))
         
         return eps
 
