@@ -367,8 +367,9 @@ class SPSAHeuristic(Heuristic):
 
 class RBHeuristic(Heuristic):
 
-    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
+    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4, field='m'):
         self._updater = updater
+        self._field = field
         self._other_fields = other_fields if other_fields is not None else {}
         self.a = a # Scalar factor
         self.t = t # Sweeping time
@@ -383,15 +384,15 @@ class RBHeuristic(Heuristic):
         t = len(self._updater.data_record) + 1 
 
         if t <= self.t:
-            eps['m'] = np.floor(self.q + self.s * (t - 1))
+            eps[self._field] = np.floor(self.q + self.s * (t - 1))
         else:
             p_est, _, _ = self._updater.est_mean()
-            eps['m'] = np.floor(self.a / (1 + p_est))
+            eps[self._field]  = np.floor(self.a / (1 + p_est))
         
         return eps
 
 
-class ExpSparsePettaHeuristic(Heuristic):
+class PettaHeuristic(Heuristic):
     r"""
     Implements the exponentially-sparse time evolution heuristic
     of [FGC12]_, under which :math:`t_k = A b^k`, where :math:`A`
