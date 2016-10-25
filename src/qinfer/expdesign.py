@@ -445,10 +445,10 @@ class PettaHeuristic(Heuristic):
         t = len(self._updater.data_record) + 1 
 
         if t <= self.t:
-            eps['exchangetime'] = np.floor(self.q + self.s * (t - 1))
+            eps['exchangetime'] = self.q + self.s * (t - 1)
         else:
             p_est = self._updater.est_mean()
-            eps['exchangetime']  = np.floor(self.a / (1 + p_est))
+            eps['exchangetime']  = self.a / (1 + p_est)
         
         return eps
 
