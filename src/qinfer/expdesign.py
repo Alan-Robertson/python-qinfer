@@ -381,6 +381,7 @@ class RBHeuristic(Heuristic):
 
         # Number of iterations
         t = len(self._updater.data_record) + 1 
+        r = np.random.rand()
 
         if t <= self.t:
             eps['m'] = np.floor(self.q + self.s * (t - 1))
