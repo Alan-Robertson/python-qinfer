@@ -41,7 +41,6 @@ from builtins import range
 
 from contextlib import contextmanager
 from functools import partial
-import threading
 import time
 
 import numpy as np
@@ -85,29 +84,6 @@ class Timer(object):
         return (self._toc if self._toc is not None else time.time()) - self._tic
 
 
-class WebProgressThread(threading.Thread):
-    done = False
-    dirty = False
-    progress = 0
-
-    def __init__(self, task, wake_event):
-        super(WebProgressThread, self).__init__()
-        self._task = task
-        self._wake_event = wake_event
-
-    def run(self):
-        while True:
-            if self.done:
-                return
-            if self.dirty:
-                try:
-                    self._task.update(progress=self.progress)
-                    self.dirty = False
-                    self._wake_event.clear()
-                except Exception as ex:
-                    print(ex)
-            self._wake_event.wait()
-
 ## CONTEXT MANAGERS ##########################################################
 
 @contextmanager
@@ -123,6 +99,7 @@ def timing():
     t = Timer()
     yield t
     t.stop()
+
 
 @contextmanager
 def numpy_err_policy(**kwargs):
@@ -150,9 +127,12 @@ PERFORMANCE_DTYPE = [
 
 ## FUNCTIONS #################################################################
 
-def actual_dtype(model):
+def actual_dtype(model, true_model=None):
+    if true_model is None:
+        true_model = model
+
     model_dtype = [
-        ('true', float, model.n_modelparams),
+        ('true', float, true_model.n_modelparams),
         ('est',  float, model.n_modelparams),
     ]
     if isinstance(model.expparams_dtype, str):
@@ -160,6 +140,33 @@ def actual_dtype(model):
         return PERFORMANCE_DTYPE + model_dtype + [('experiment', model.expparams_dtype)], True
     else:
         return PERFORMANCE_DTYPE + model_dtype + model.expparams_dtype, False
+
+def promote_dims_left(arr, ndim):
+    if np.ndim(arr) < ndim:
+        return arr[(None,) * (ndim - np.ndim(arr)) + (Ellipsis, )]
+    else:
+        return arr
+
+def shorten_right(*args):
+    # First, ensure that all args have the same number of
+    # dims.
+    max_dims = max(np.ndim(arg) for arg in args)
+    args = list(map(partial(promote_dims_left, ndim=max_dims), args))
+
+    # Next, for each axis, find the *shortest* along that axis.
+    min_shapes = [
+        min(np.shape(arg)[axis] for arg in args)
+        for axis in range(max_dims)
+    ]
+
+    # We then trim the elements that are longer than the minimum shape.
+    min_slice = np.s_[tuple([
+        np.s_[-min_shape:]
+        for min_shape in min_shapes
+    ])]
+    return tuple([
+        arg[min_slice] for arg in args
+    ])
 
 def perf_test(
         model, n_particles, prior, n_exp, heuristic_class,
@@ -182,13 +189,17 @@ def perf_test(
         for the experiment design heuristic to be used.
     :param qinfer.Model true_model: Model to be used in
         generating experimental data. If ``None``, assumed to be ``model``.
+        Note that if the true and estimation models have different numbers
+        of parameters, the loss will be calculated by aligning the
+        respective model vectors "at the right," analogously to the
+        convention used by NumPy broadcasting.
     :param qinfer.Distribution true_prior: Prior to be used in
         selecting the true model parameters. If ``None``, assumed to be
         ``prior``.
-    :param np.ndarray true_mps: The true model parameters. If ``None``,
-        it will be sampled from ``true_prior``. Note that the performance
-        record can only handle one outcome and therefore ONLY ONE TRUE MODEL.
-        An error will occur if ``true_mps.shape[0] > 1`` returns ``True``.
+    :param numpy.ndarray true_mps: The true model parameters. If ``None``,
+        it will be sampled from ``true_prior``. Note that as this function
+        runs exactly one trial, only one model parameter vector may be passed.
+        In particular, this requires that ``len(true_mps.shape) == 1``. 
     :param dict extra_updater_args: Extra keyword arguments for the updater,
         such as resampling and zero-weight policies.
     :rtype np.ndarray: See :ref:`perf_testing_struct` for more details on 
@@ -209,24 +220,33 @@ def perf_test(
     if extra_updater_args is None:
         extra_updater_args = {}
 
-    dtype, is_scalar_exp = actual_dtype(model)
+    n_min_modelparams = min(model.n_modelparams, true_model.n_modelparams)
+
+    dtype, is_scalar_exp = actual_dtype(model, true_model)
     performance = np.zeros((n_exp,), dtype=dtype)
 
     updater = SMCUpdater(model, n_particles, prior, **extra_updater_args)
     heuristic = heuristic_class(updater)
 
-    performance['true'] = true_mps
-
     for idx_exp in range(n_exp):
+        # Set inside the loop to handle the case where the
+        # true model is time-dependent as well as the estimation model.
+        performance[idx_exp]['true'] = true_mps
+
         expparams = heuristic()
         datum = true_model.simulate_experiment(true_mps, expparams)
 
         with timing() as t:
             updater.update(datum, expparams)
 
+        # Update the true model.
+        true_mps = true_model.update_timestep(
+            promote_dims_left(true_mps, 2), expparams
+        )[:, :, 0]
+
         est_mean = updater.est_mean()
-        delta = est_mean - true_mps
-        loss = np.dot(delta**2, model.Q)
+        delta = np.subtract(*shorten_right(est_mean, true_mps))
+        loss = np.dot(delta**2, model.Q[-n_min_modelparams:])
 
         performance[idx_exp]['elapsed_time'] = t.delta_t
         performance[idx_exp]['loss'] = loss
@@ -240,6 +260,7 @@ def perf_test(
                 performance[idx_exp][param_name] = expparams[param_name]
 
     return performance
+
 
 class apply_serial(object):
     """
@@ -265,50 +286,51 @@ def perf_test_multiple(
         n_trials,
         model, n_particles, prior,
         n_exp, heuristic_class,
-        true_model=None, true_prior=None,
+        true_model=None, true_prior=None, true_mps=None,
         apply=apply_serial,
-        tskmon_client=None,
         allow_failures=False,
         extra_updater_args=None,
         progressbar=None
     ):
-    # TODO: write full docstring, but this repeats many times.
+    """
+    Runs many trials of using SMC to estimate the parameters of a model, given a
+    number of particles, a prior distribution and an experiment design
+    heuristic.
+
+    In addition to the parameters accepted by :func:`perf_test`,
+    this function takes the following arguments:
+
+    :param int n_trials: Number of different trials to run.
+    :param callable apply: Function to call to delegate each trial.
+        See, for example, :meth:`~ipyparallel.LoadBalancedView.apply`.
+    :param qutip.ui.BaseProgressBar progressbar: QuTiP-style progress bar
+        class used to report how many trials have successfully completed.
+    :param bool allow_failures: If `False`, an exception raised
+        in any trial will propagate out. Otherwise, failed
+        trials are masked out of the returned performance array
+        using NumPy masked arrays.
+    :rtype np.ndarray: See :ref:`perf_testing_struct` for more details on 
+        the type returned by this function.
+    :return: A record array of performance metrics, indexed by
+        the trial and the number of experiments performed.
+    """
 
     trial_fn = partial(perf_test,
         model, n_particles, prior,
         n_exp, heuristic_class, true_model, true_prior,
+        true_mps=true_mps,
         extra_updater_args=extra_updater_args
     )
 
-    dtype, is_scalar_exp = actual_dtype(model)
+    dtype, is_scalar_exp = actual_dtype(model, true_model)
     performance = (np.zeros if not allow_failures else ma.zeros)((n_trials, n_exp), dtype=dtype)
 
-    task = None
-    thread = None
-    wake_event = None
     prog = None
 
     try:
         name = getattr(type(model), '__name__', 'unknown model')
     except:
         name = 'unknown model'
-
-    if tskmon_client is not None:
-        try:
-            task = tskmon_client.new_task(
-                description="QInfer Performance Testing",
-                status="Testing {}...".format(name),
-                max_progress=n_trials
-            )
-            wake_event = threading.Event()
-            thread = WebProgressThread(task, wake_event)
-            # We shouldn't need this, as it's a bug if it doesn't join, but
-            # we do it to mitigate worst cases.
-            thread.daemon = True
-            thread.start()
-
-        except Exception as ex:
-            print("Failed to start tskmon task: ", ex)
 
     try:
         if progressbar is not None:
@@ -344,26 +366,7 @@ def perf_test_multiple(
                     else:
                         raise
 
-                if thread is not None:
-                    thread.progress = idx + 1
-                    thread.dirty = True
-                    wake_event.set()
-
     finally:
-        # Make *sure* we've killed the thread.
-        if task is not None:
-            try:
-                thread.done = True
-                wake_event.set()
-                task.delete()
-                # Try and join for 1s. If nothing happens, we
-                # raise and move on.
-                thread.join(1)
-                if thread.is_alive():
-                    print("Thread didn't die. This is a bug.")
-            except Exception as ex:
-                print("Exception cleaning up tskmon task.", ex)
-
         if prog is not None:
             prog.finished()
 

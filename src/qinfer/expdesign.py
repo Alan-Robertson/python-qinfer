@@ -37,7 +37,6 @@ __all__ = [
     'EnsembleHeuristic',
     'ExpSparseHeuristic',
     'PGH',
-    'StenbergHeuristic',
     'OptimizationAlgorithms'
 ]
 
@@ -55,7 +54,6 @@ from abc import ABCMeta, abstractmethod
 import warnings
 
 from qinfer.finite_difference import *
-from qinfer.perf_testing import actual_dtype
 
 ## FUNCTIONS ###################################################################
 
@@ -73,9 +71,6 @@ class Heuristic(with_metaclass(ABCMeta, object)):
     risk, and so would be appropriate as a `Heuristic` subclass.
     In particular, the [FGC12]_ heuristic is implemented by the
     :class:`ExpSparseHeuristic` class.
-
-    Note that the design of this abstract base class is still being decided,
-    such that it is a placeholder for now.
     """
 
     def __init__(self, updater):
@@ -141,7 +136,7 @@ class ExpSparseHeuristic(Heuristic):
             return np.array([t], dtype=dtype)
         else:
             eps = np.empty((1,), dtype=dtype)
-            for field, value in self._other_fields.iteritems():
+            for field, value in self._other_fields.items():
                 eps[field] = value
             eps[self._t_field] = t
             return eps
@@ -214,247 +209,10 @@ class PGH(Heuristic):
         eps[self._x_] = self._inv_func(x)
         eps[self._t]  = self._t_func(1 / self._updater.model.distance(x, xp))
         
-        for field, value in self._other_fields.iteritems():
+        for field, value in self._other_fields.items():
             eps[field] = value
         
         return eps
-
-#May be renamed in the near future
-class StenbergHeuristic(Heuristic):
-    '''
-    Implements the Stenberg Heuristic
-    # More comments to follow
-    '''
-    
-    def __init__(self, updater, other_fields=None, a=1.57, b=0.518, c=3, M0=15):
-        super(StenbergHeuristic, self).__init__(updater)
-        self._other_fields = other_fields if other_fields is not None else {}
-        self.a = a
-        self.b = b
-        self.c = c
-        self.M0 = M0
-    
-    
-    def __call__(self):
-        
-        r1 = np.random.rand()
-        r2 = np.random.rand()
-        z = np.random.normal()
-        
-        M = len(self._updater.data_record) + 1
-
-        mu_omega, mu_g, _ = self._updater.est_mean()
-        est_covariance_mtx = self._updater.est_covariance_mtx()
-        sigma_omega, sigma_g, _= np.sqrt(np.diag(est_covariance_mtx))
-        
-
-        if M < self.M0:
-            t = self.a * r1 / sigma_g
-            omega_q = mu_omega + (r1 - 0.5) * mu_g
-        else:
-            t = abs(self.a + self.b * z) / sigma_g 
-            omega_q = mu_omega + self.c * (r2  - 0.5) * sigma_omega
-        
-        
-        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-        eps['time'] = t
-        eps['qubitfrequency'] = omega_q
-        
-        for field, value in self._other_fields.iteritems():
-            eps[field] = value
-        
-        return eps
-
-
-class SPSAHeuristic(Heuristic):
-    '''
-    Implements SPSA as a heuristic
-    '''
-
-    def __init__(self, updater, other_fields=None, A=0, a=3, b=0.1, t=1/6, s=1, initial_position=lambda n: np.random.random(n)):
-        super(SPSAHeuristic, self).__init__(updater)
-        self._other_fields = other_fields if other_fields is not None else {}
-        self.A = A
-        self.a = a
-        self.b = b
-        self.t = t
-        self.s = s
-        self.k = 0
-        self._experiment_fitness = other_fields['experiment_fitness'] #This must be passed using partial, else as a "heuristic args" parameter to the heuristic simulator
-        self._initial_position = initial_position
-
-    def __call__(self):
-
-        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-
-        # If we have no current data, initialise using the initial position function passes as an additional argument to the updater
-        if len(self._updater._experiment_record) == 0:
-            self._updater.model.expparams_dtype #Hypothetical update, sample MPS from posterior
-            fields = [field for (field, _) in self._updater.model.expparams_dtype]
-            values = self._initial_position(len(fields))
-
-            for field, value in zip(fields, values):
-                eps[field] = value
-
-            return eps
-
-        # If this is not the first iteration we can start the SPSA
-        expparams = self._updater._experiment_record[-1]
-        values = expparams[0]
-        fields = [field for (field, _) in self._updater.model.expparams_dtype]
-        true_mps = self._updater.prior.sample()
-
-        # Parameters of the SPSA algorithm
-        delta = (np.random.random(len(expparams[0])) - 1) * 2
-        alpha = self.a/(1 + self.k + self.A)**self.s
-        beta = self.b/(1 + self.k)**self.t
-        self.k += 1
-
-        dtype = actual_dtype(self._updater.model)
-        # Stores performance data
-        u_performance = {}
-        d_performance = {}
-
-        #SPSA f(x + alpha * delta)
-        u_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-        for i, (field, value) in enumerate(zip(fields, values)):
-            u_expparams[field] = value + alpha * delta[i]
-
-        u_datum = self._updater.model.simulate_experiment(true_mps, u_expparams)
-
-        self._updater.update(u_datum, u_expparams)
-
-        # Performance data
-        u_est_mean = self._updater.est_mean()
-        u_delta = u_est_mean - true_mps
-        u_loss = np.dot(u_delta**2, self._updater.model.Q)
-
-        u_performance['true'] = true_mps
-        u_performance['loss'] = u_loss
-        u_performance['resample_count'] = self._updater.resample_count
-        u_performance['outcome'] = u_datum
-        u_performance['est'] = u_est_mean
-
-        # SPSA f(x - alpha * delta)
-        d_expparams = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-        for i, (field, value) in enumerate(zip(fields, values)):
-            d_expparams[field] = value - alpha * delta[i]
-
-        d_datum = self._updater.model.simulate_experiment(true_mps, d_expparams)
-
-        self._updater.update(d_datum, d_expparams)
-
-        # Performance data
-        d_est_mean = self._updater.est_mean()
-        d_delta = d_est_mean - true_mps
-        d_loss = np.dot(d_delta**2, self._updater.model.Q)
-
-        d_performance['true'] = true_mps
-        d_performance['loss'] = d_loss
-        d_performance['resample_count'] = self._updater.resample_count
-        d_performance['outcome'] = d_datum
-        d_performance['est'] = d_est_mean
-
-        # Calculate g
-        g = np.multiply((self._experiment_fitness(u_performance) - self._experiment_fitness(d_performance)),  delta / (2 * alpha))
-
-        # SPSA x' = x + g * beta
-        for i, (field, value) in enumerate(zip(fields, values)):
-            expparams[field] = value + g[i] * beta
-
-        return expparams
-
-
-class RBHeuristic(Heuristic):
-
-    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
-        self._updater = updater
-        self._other_fields = other_fields if other_fields is not None else {}
-        self.a = a # Scalar factor
-        self.t = t # Sweeping time
-        self.q = q # Initial M
-        self.s = s # M step size
-
-    def __call__(self):
-
-        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-
-        # Number of iterations
-        t = len(self._updater.data_record) + 1 
-        r = np.random.rand()
-
-        if t <= self.t:
-            eps['m'] = np.floor(self.q + self.s * (t - 1))
-        else:
-            p_est, _, _ = self._updater.est_mean()
-            eps['m'] = np.floor(self.a / (1 + p_est))
-        
-        return eps
-
-
-class ExpSparsePettaHeuristic(Heuristic):
-    r"""
-    Implements the exponentially-sparse time evolution heuristic
-    of [FGC12]_, under which :math:`t_k = A b^k`, where :math:`A`
-    and :math:`b` are parameters of the heuristic.
-
-    :param qinfer.smc.SMCUpdater updater: Posterior updater for which
-        experiments should be heuristicly designed.
-    :param float scale: The value of :math:`A`, implicitly setting
-        the frequency scale for the problem.
-    :param float base: The base of the exponent; in general, should
-        be closer to 1 for higher-dimensional models.
-    :param str t_field: Name of the expparams field representing time.
-        If None, then the generated expparams are taken to be scalar,
-        and not a record.
-    :param dict other_fields: Values of the other fields to be used
-        in designed experiments.
-    """
-
-    def __init__(self,
-            updater, scale=1, base=9/8,
-            t_field='exchangetime', other_fields=None
-        ):
-        self._updater = updater
-        self._scale = scale
-        self._base = base
-        self._t_field = t_field
-
-    def __call__(self):
-        n_exps = len(self._updater.data_record)
-        t = self._scale * (self._base ** n_exps)
-        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-        eps[self._t_field] = t
-        return eps
-
-
-class PettaHeuristic(Heuristic):
-
-    def __init__(self, updater, other_fields=None, a=1, t=10, q=4, s=4):
-        self._updater = updater
-        self._other_fields = other_fields if other_fields is not None else {}
-        self.a = a # Scalar factor
-        self.t = t # Sweeping time
-        self.q = q # Initial M
-        self.s = s # M step size
-
-    def __call__(self):
-
-        eps = np.empty((1,), dtype=self._updater.model.expparams_dtype)
-
-        # Number of iterations
-        t = len(self._updater.data_record) + 1 
-
-        if t <= self.t:
-            eps['exchangetime'] = self.q + self.s * (t - 1)
-        else:
-            p_est = self._updater.est_mean()
-            eps['exchangetime']  = self.a / (1 + p_est)
-        
-        return eps
-
-
-
 
 class ExperimentDesigner(object):
     """

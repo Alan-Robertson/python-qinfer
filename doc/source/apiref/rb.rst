@@ -7,10 +7,10 @@
     
 .. _rb:
     
-.. currentmodule:: qinfer.rb
+.. currentmodule:: qinfer
 
-Accelerated Randomized Benchmarking
-===================================
+Randomized Benchmarking
+=======================
 
 :class:`RandomizedBenchmarkingModel` - Likelihood for RB experiments
 --------------------------------------------------------------------
@@ -19,6 +19,8 @@ Class Reference
 ~~~~~~~~~~~~~~~
 .. autoclass:: RandomizedBenchmarkingModel
     :members:
+
+.. currentmodule:: qinfer.rb
     
 Function Reference
 ~~~~~~~~~~~~~~~~~~

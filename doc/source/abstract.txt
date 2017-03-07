@@ -1,0 +1,9 @@
+Characterizing quantum systems through experimental data is critical to
+applications as diverse as metrology and quantum computing. Analyzing this
+experimental data in a robust and reproducible manner is made challenging,
+however, by the lack of readily-available software for performing principled
+statistical analysis. QInfer addresses this need. Our library makes it easy to
+analyze data from tomography, randomized benchmarking, and Hamiltonian
+learning experiments either in post-processing, or online as data is acquired.
+We also provide functionality for predicting the performance of a proposed
+experimental protocols from simulated runs.
